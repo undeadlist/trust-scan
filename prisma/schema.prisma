@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ScanResult {
+  id          String   @id @default(cuid())
+  url         String   @unique
+  domain      String
+
+  // Risk scoring
+  riskScore   Int      // 0-100, higher = more risky
+  riskLevel   String   // "low" | "medium" | "high" | "critical"
+
+  // Check results (stored as JSON)
+  whoisData   Json?
+  sslData     Json?
+  hostingData Json?
+  scraperData Json?
+  patternsData Json?
+  githubData  Json?
+  archiveData Json?
+
+  // Red flags detected
+  redFlags    Json     // Array of red flag objects
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  expiresAt   DateTime // 24 hours from creation
+
+  @@index([domain])
+  @@index([expiresAt])
+}
