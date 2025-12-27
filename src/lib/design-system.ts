@@ -7,7 +7,7 @@ export const BRAND = {
   description: 'The same tools that let you ship in a weekend let scammers ship honeypots in an hour. Trust Scan helps you check if that shiny new service is legit before you hand over your API keys.',
   builtBy: 'UndeadList.com',
   builtByUrl: 'https://undeadlist.com',
-  github: 'https://github.com/undeadlist/aibuilds',
+  github: 'https://github.com/undeadlist/trust-scan',
   contact: 'contact@aibuilds.net',
 } as const;
 
