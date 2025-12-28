@@ -8,7 +8,8 @@ export const BRAND = {
   builtBy: 'UndeadList.com',
   builtByUrl: 'https://undeadlist.com',
   github: 'https://github.com/undeadlist/trust-scan',
-  contact: 'contact@aibuilds.net',
+  twitter: 'https://x.com/undeadlistshop',
+  contact: 'undeadlist1@gmail.com',
 } as const;
 
 export const NAV_LINKS = [
