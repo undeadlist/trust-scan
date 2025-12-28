@@ -9,14 +9,35 @@ import {
   checkGithub,
   checkArchive,
   getCachedThreatData,
+  checkPhishTank,
+  checkSpamhaus,
+  checkAbuseIPDB,
 } from '@/lib/checks';
 import { calculateRiskScore } from '@/lib/scoring';
 import { ScanResponse, ScanResult } from '@/lib/types';
 import { withTimeout, fetchWithTimeout } from '@/lib/utils/timeout';
 import { isKnownLegitDomain, getKnownEntityInfo, getKnownEntityCategory } from '@/lib/known-entities';
 import { isVerifiedSite } from '@/lib/verified-sites';
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
 
 const SCAN_TIMEOUT_MS = 30000;
+
+// Rate limiting: 10 requests per minute per IP
+// Only enabled if Redis is configured
+let ratelimit: Ratelimit | null = null;
+if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+  const redis = new Redis({
+    url: process.env.UPSTASH_REDIS_REST_URL,
+    token: process.env.UPSTASH_REDIS_REST_TOKEN,
+  });
+  ratelimit = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(10, '1m'),
+    analytics: true,
+    prefix: 'trustscan:ratelimit',
+  });
+}
 
 // Helper to extract domain from URL
 function extractDomain(url: string): string {
@@ -50,6 +71,31 @@ function normalizeUrl(url: string): string {
 
 export async function POST(request: NextRequest): Promise<NextResponse<ScanResponse>> {
   try {
+    // Rate limiting (if Redis is configured)
+    if (ratelimit) {
+      const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+                 request.headers.get('x-real-ip') ??
+                 'anonymous';
+      const { success, limit, reset, remaining } = await ratelimit.limit(ip);
+
+      if (!success) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Rate limit exceeded. Please try again later.'
+          },
+          {
+            status: 429,
+            headers: {
+              'X-RateLimit-Limit': limit.toString(),
+              'X-RateLimit-Remaining': remaining.toString(),
+              'X-RateLimit-Reset': reset.toString(),
+            },
+          }
+        );
+      }
+    }
+
     const body = await request.json();
     const { url } = body;
 
@@ -153,19 +199,52 @@ export async function POST(request: NextRequest): Promise<NextResponse<ScanRespo
     }
 
     // Perform all checks in parallel with timeout
-    const [whoisResult, sslResult, hostingResult, scraperResult, archiveResult, threatResult] =
-      await withTimeout(
-        Promise.all([
-          checkWhois(domain),
-          checkSSL(domain),
-          checkHosting(domain),
-          scrapeWebsite(normalizedUrl),
-          checkArchive(normalizedUrl),
-          getCachedThreatData(normalizedUrl),
-        ]),
-        SCAN_TIMEOUT_MS,
-        'Scan timed out - some checks may have failed'
-      );
+    const [
+      whoisResult,
+      sslResult,
+      hostingResult,
+      scraperResult,
+      archiveResult,
+      threatResult,
+      phishTankResult,
+      spamhausResult,
+    ] = await withTimeout(
+      Promise.all([
+        checkWhois(domain),
+        checkSSL(domain),
+        checkHosting(domain),
+        scrapeWebsite(normalizedUrl),
+        checkArchive(normalizedUrl),
+        getCachedThreatData(normalizedUrl),
+        checkPhishTank(normalizedUrl),
+        checkSpamhaus(domain),
+      ]),
+      SCAN_TIMEOUT_MS,
+      'Scan timed out - some checks may have failed'
+    );
+
+    // Check AbuseIPDB using the IP from hosting check (runs after parallel batch)
+    let abuseIPDBResult = null;
+    if (hostingResult.ipAddress) {
+      abuseIPDBResult = await checkAbuseIPDB(hostingResult.ipAddress);
+    }
+
+    // Merge threat intelligence results
+    const combinedThreatData = {
+      ...threatResult,
+      // Add PhishTank findings
+      phishTank: phishTankResult,
+      // Add Spamhaus findings
+      spamhaus: spamhausResult,
+      // Add AbuseIPDB findings
+      abuseIPDB: abuseIPDBResult,
+      // Override isMalicious if any source flags it
+      isMalicious:
+        threatResult.isMalicious ||
+        phishTankResult.isPhishing ||
+        spamhausResult.listed ||
+        (abuseIPDBResult?.isMalicious ?? false),
+    };
 
     // Scrape HTML for pattern analysis
     let patternsResult;
@@ -198,7 +277,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ScanRespo
       patternsData: patternsResult,
       githubData: githubResult,
       archiveData: archiveResult,
-      threatData: threatResult,
+      threatData: combinedThreatData,
     });
 
     const now = new Date();
@@ -225,7 +304,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ScanRespo
           patternsData: patternsResult as object,
           githubData: githubResult as object,
           archiveData: archiveResult as object,
-          threatData: threatResult as object,
+          threatData: combinedThreatData as object,
           redFlags: redFlags as object[],
           expiresAt,
         },
@@ -245,7 +324,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ScanRespo
         patternsData: patternsResult,
         githubData: githubResult,
         archiveData: archiveResult,
-        threatData: threatResult,
+        threatData: combinedThreatData,
         redFlags,
         createdAt: now,
         expiresAt,
@@ -290,7 +369,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ScanRespo
       patternsData: patternsResult,
       githubData: githubResult,
       archiveData: archiveResult,
-      threatData: threatResult,
+      threatData: combinedThreatData,
       redFlags,
       createdAt: now.toISOString(),
       expiresAt: expiresAt.toISOString(),

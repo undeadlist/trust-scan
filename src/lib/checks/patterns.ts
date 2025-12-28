@@ -5,6 +5,8 @@ interface PatternRule {
   category: RedFlagCategory;
   severity: 'low' | 'medium' | 'high' | 'critical';
   description: string;
+  unless?: RegExp[];  // Don't flag if these also match (reduces false positives)
+  onlyIf?: RegExp[];  // Only flag if these also match (adds context requirement)
 }
 
 // Red flag detection patterns
@@ -145,8 +147,9 @@ const PATTERN_RULES: PatternRule[] = [
   {
     pattern: /api[- ]key|secret[- ]key|access[- ]token/i,
     category: 'dangerous_permissions',
-    severity: 'medium',
+    severity: 'low',  // Reduced - normal for developer tools
     description: 'Requests API credentials',
+    unless: [/developer/i, /documentation/i, /api reference/i, /sdk/i, /docs/i, /getting started/i],
   },
 
   // OAuth/Permission scams
@@ -177,8 +180,9 @@ const PATTERN_RULES: PatternRule[] = [
   {
     pattern: /verify your (account|identity|payment|information)/i,
     category: 'suspicious_patterns',
-    severity: 'critical',
+    severity: 'high',  // Reduced from critical - context matters
     description: 'Phishing verification language',
+    unless: [/sign up/i, /create account/i, /register/i, /new user/i, /welcome/i],  // Normal during signup
   },
   {
     pattern: /account (has been |is )?(suspended|limited|restricted|locked)/i,
@@ -221,8 +225,9 @@ const PATTERN_RULES: PatternRule[] = [
   {
     pattern: /connect (your )?wallet|web3 (login|connect)/i,
     category: 'dangerous_permissions',
-    severity: 'high',
+    severity: 'medium',  // Reduced - normal for legitimate crypto services
     description: 'Wallet connection request',
+    unless: [/ethereum/i, /metamask/i, /coinbase/i, /ledger/i, /trust wallet/i, /rainbow/i],
   },
   {
     pattern: /0x[a-fA-F0-9]{40}/,
@@ -419,6 +424,15 @@ export function analyzePatterns(content: string): PatternsData {
   for (const rule of PATTERN_RULES) {
     const match = content.match(rule.pattern);
     if (match) {
+      // Check unless conditions - skip if any match (reduces false positives)
+      if (rule.unless?.some(u => u.test(content))) {
+        continue;
+      }
+      // Check onlyIf conditions - skip if none match (adds context requirement)
+      if (rule.onlyIf && !rule.onlyIf.some(o => o.test(content))) {
+        continue;
+      }
+
       // Avoid duplicate categories unless different severity
       const key = `${rule.category}-${rule.severity}`;
       if (!seenCategories.has(key)) {

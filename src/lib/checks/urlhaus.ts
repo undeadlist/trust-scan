@@ -1,5 +1,5 @@
 // URLhaus Threat Intelligence Check
-// Free API from abuse.ch - no API key required
+// API from abuse.ch - key recommended for higher limits
 // Checks URLs against known malware/phishing database
 
 import { ThreatData } from '../types';
@@ -22,11 +22,18 @@ export async function checkURLhaus(url: string): Promise<ThreatData> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    };
+
+    // Add API key if configured
+    if (process.env.URLHAUS_KEY) {
+      headers['Auth-Key'] = process.env.URLHAUS_KEY;
+    }
+
     const response = await fetch(URLHAUS_API, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
+      headers,
       body: `url=${encodeURIComponent(url)}`,
       signal: controller.signal,
     });

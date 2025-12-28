@@ -7,3 +7,6 @@ export { checkGithub } from './github';
 export { checkArchive } from './archive';
 export { checkURLhaus, checkURLhausDomain } from './urlhaus';
 export { getCachedThreatData, clearThreatCache, hasRedisConfig } from './threat-cache';
+export { checkPhishTank } from './phishtank';
+export { checkSpamhaus } from './spamhaus';
+export { checkAbuseIPDB } from './abuseipdb';

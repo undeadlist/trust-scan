@@ -41,6 +41,31 @@ export function calculateRiskScore(results: CheckResults): ScoringResult {
   const redFlags: RedFlag[] = [];
   let baseScore = 0;
 
+  // === Positive Scoring ===
+  // Trust signals that REDUCE risk score
+  const positiveSignals: Array<{
+    condition: boolean;
+    points: number;
+    reason: string;
+  }> = [
+    { condition: !!(results.sslData?.valid && (results.sslData.daysRemaining ?? 0) > 30), points: -10, reason: 'Valid SSL certificate' },
+    { condition: !!results.scraperData?.hasPrivacyPolicy, points: -5, reason: 'Has privacy policy' },
+    { condition: !!results.scraperData?.hasTermsOfService, points: -5, reason: 'Has terms of service' },
+    { condition: !!results.scraperData?.hasContactPage, points: -5, reason: 'Has contact page' },
+    { condition: !!(results.whoisData?.domainAge && results.whoisData.domainAge > 365), points: -15, reason: 'Domain over 1 year old' },
+    { condition: !!(results.whoisData?.domainAge && results.whoisData.domainAge > 180 && results.whoisData.domainAge <= 365), points: -8, reason: 'Domain over 6 months old' },
+    { condition: !!(results.githubData?.repoFound && (results.githubData.stars ?? 0) > 100), points: -10, reason: 'Popular GitHub repo' },
+    { condition: !!(results.githubData?.repoFound && (results.githubData.contributors ?? 0) > 5), points: -5, reason: 'Multiple contributors' },
+    { condition: !!(results.archiveData?.found && (results.archiveData.snapshotCount ?? 0) > 10), points: -5, reason: 'Established web presence' },
+  ];
+
+  // Apply positive scoring (reduces base score)
+  for (const signal of positiveSignals) {
+    if (signal.condition) {
+      baseScore += signal.points;
+    }
+  }
+
   // === Domain Name Analysis ===
   // Check domain name for suspicious keywords
   if (results.domain) {
@@ -250,16 +275,51 @@ export function calculateRiskScore(results: CheckResults): ScoringResult {
   }
 
   // === Threat Intelligence Analysis ===
-  if (results.threatData && !results.threatData.error) {
-    if (results.threatData.isMalicious) {
+  if (results.threatData) {
+    // URLhaus detection
+    if (results.threatData.isMalicious && results.threatData.threat) {
       redFlags.push({
         category: 'suspicious_patterns',
         severity: 'critical',
         title: 'Known Malicious URL',
         description: `This URL has been flagged as malicious by threat intelligence databases.`,
-        evidence: results.threatData.threat
-          ? `Threat type: ${results.threatData.threat}${results.threatData.tags.length > 0 ? `, Tags: ${results.threatData.tags.join(', ')}` : ''}`
-          : 'Flagged by URLhaus threat database',
+        evidence: `Threat type: ${results.threatData.threat}${results.threatData.tags?.length > 0 ? `, Tags: ${results.threatData.tags.join(', ')}` : ''}`,
+      });
+    }
+
+    // PhishTank detection
+    const phishTank = (results.threatData as { phishTank?: { isPhishing?: boolean; inDatabase?: boolean } }).phishTank;
+    if (phishTank?.isPhishing) {
+      redFlags.push({
+        category: 'suspicious_patterns',
+        severity: 'critical',
+        title: 'Known Phishing Site',
+        description: 'This URL has been verified as a phishing site by PhishTank.',
+        evidence: 'Verified phishing URL in PhishTank database',
+      });
+    }
+
+    // Spamhaus detection
+    const spamhaus = (results.threatData as { spamhaus?: { listed?: boolean; returnCode?: string } }).spamhaus;
+    if (spamhaus?.listed) {
+      redFlags.push({
+        category: 'suspicious_patterns',
+        severity: 'critical',
+        title: 'Domain Blocklisted',
+        description: 'This domain is listed in Spamhaus Domain Block List.',
+        evidence: spamhaus.returnCode ? `Spamhaus category: ${spamhaus.returnCode}` : 'Listed in Spamhaus DBL',
+      });
+    }
+
+    // AbuseIPDB detection
+    const abuseIPDB = (results.threatData as { abuseIPDB?: { isMalicious?: boolean; abuseScore?: number; totalReports?: number } }).abuseIPDB;
+    if (abuseIPDB?.isMalicious) {
+      redFlags.push({
+        category: 'suspicious_patterns',
+        severity: 'high',
+        title: 'Suspicious IP Address',
+        description: 'The server IP has been reported for abuse.',
+        evidence: `Abuse confidence: ${abuseIPDB.abuseScore}%, Reports: ${abuseIPDB.totalReports}`,
       });
     }
   }
@@ -281,8 +341,15 @@ export function calculateRiskScore(results: CheckResults): ScoringResult {
     baseScore += SEVERITY_SCORES[flag.severity];
   }
 
-  // Cap the score at 100
-  const riskScore = Math.min(100, baseScore);
+  // Smoother risk calculation with diminishing returns
+  // Prevents score explosion from multiple low-severity flags
+  function calculateSmoothedScore(rawScore: number): number {
+    if (rawScore <= 0) return 0;
+    // Logarithmic scaling: 100 raw → ~70 smoothed, 50 raw → ~45 smoothed
+    return Math.min(100, Math.round(100 * (1 - Math.exp(-rawScore / 50))));
+  }
+
+  const riskScore = calculateSmoothedScore(baseScore);
 
   // Determine risk level
   let riskLevel: 'low' | 'medium' | 'high' | 'critical';
