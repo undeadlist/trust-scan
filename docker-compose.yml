@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  # Trust Scan Application
+  trustscan:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: trustscan-app
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    networks:
+      - trustscan-network
+    extra_hosts:
+      # Allow container to reach host network (for Ollama)
+      - "host.docker.internal:host-gateway"
+
+  # Cloudflare Tunnel
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: trustscan-tunnel
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    networks:
+      - trustscan-network
+    depends_on:
+      - trustscan
+
+networks:
+  trustscan-network:
+    driver: bridge
