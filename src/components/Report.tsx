@@ -134,6 +134,27 @@ export function Report({ result, onNewScan }: ReportProps) {
         </div>
       )}
 
+      {/* Trust Scan Verified Badge */}
+      {result.verifiedBadge?.isVerified && !result.isKnownEntity && (
+        <div className="p-4 bg-indigo-500/10 border border-indigo-500/30 rounded-xl">
+          <div className="flex items-center gap-3">
+            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center">
+              <svg className="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-indigo-400 font-semibold">Trust Scan Verified</h3>
+              <p className="text-indigo-400/70 text-sm">
+                This site has been manually verified by Trust Scan
+                {result.verifiedBadge.category && ` • ${result.verifiedBadge.category}`}
+                {result.verifiedBadge.expiresAt && ` • Valid until ${new Date(result.verifiedBadge.expiresAt).toLocaleDateString()}`}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Scan Confidence Warning */}
       {result.scanConfidence === 'low' && !result.isKnownEntity && (
         <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
@@ -203,7 +224,7 @@ export function Report({ result, onNewScan }: ReportProps) {
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
               />
             </svg>
-            <span className="text-zinc-400">Analyzing with Trust Scan LLM...</span>
+            <span className="text-zinc-400">Analyzing with Trust Scan AI...</span>
           </div>
         ) : aiError ? (
           <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">

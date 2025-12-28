@@ -14,9 +14,19 @@ interface ServerConfig {
   trustScanAvailable: boolean;
 }
 
+// URL validation regex - matches domain names with optional protocol and path
+const isValidUrl = (url: string): boolean => {
+  const trimmed = url.trim();
+  if (!trimmed) return false;
+  // Match: optional protocol, domain with at least one dot, optional path
+  const pattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w\-./?%&=]*)?$/i;
+  return pattern.test(trimmed);
+};
+
 export function Scanner({ onScanComplete, onScanStart, isScanning }: ScannerProps) {
   const [url, setUrl] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [urlError, setUrlError] = useState<string | null>(null);
   const [serverConfig, setServerConfig] = useState<ServerConfig>({
     trustScanAvailable: false,
   });
@@ -35,12 +45,30 @@ export function Scanner({ onScanComplete, onScanStart, isScanning }: ScannerProp
       });
   }, []);
 
+  // Validate URL on change (with debounce effect via state)
+  const handleUrlChange = (value: string) => {
+    setUrl(value);
+    setUrlError(null);
+    setError(null);
+
+    // Only show validation error if user has typed something
+    if (value.trim() && !isValidUrl(value)) {
+      setUrlError('Please enter a valid URL (e.g., example.com or https://example.com)');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setUrlError(null);
 
     if (!url.trim()) {
-      setError('Please enter a URL');
+      setUrlError('Please enter a URL');
+      return;
+    }
+
+    if (!isValidUrl(url)) {
+      setUrlError('Please enter a valid URL (e.g., example.com or https://example.com)');
       return;
     }
 
@@ -75,7 +103,7 @@ export function Scanner({ onScanComplete, onScanStart, isScanning }: ScannerProp
           <input
             type="text"
             value={url}
-            onChange={(e) => setUrl(e.target.value)}
+            onChange={(e) => handleUrlChange(e.target.value)}
             placeholder="Enter URL to scan (e.g., example.com)"
             disabled={isScanning}
             className="
@@ -89,7 +117,7 @@ export function Scanner({ onScanComplete, onScanStart, isScanning }: ScannerProp
 
           <button
             type="submit"
-            disabled={isScanning || !url.trim()}
+            disabled={isScanning || !url.trim() || (!!url.trim() && !isValidUrl(url))}
             className="
               absolute right-2 top-1/2 -translate-y-1/2
               px-6 py-2.5 bg-red-600
@@ -126,6 +154,12 @@ export function Scanner({ onScanComplete, onScanStart, isScanning }: ScannerProp
             )}
           </button>
         </div>
+
+        {urlError && (
+          <div className="p-4 bg-amber-500/20 border border-amber-500/50 rounded-lg">
+            <p className="text-amber-400 text-sm">{urlError}</p>
+          </div>
+        )}
 
         {error && (
           <div className="p-4 bg-red-500/20 border border-red-500/50 rounded-lg">

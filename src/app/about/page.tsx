@@ -85,9 +85,9 @@ export default function AboutPage() {
 
           {/* AI Analysis Section */}
           <ContentSection title="AI-Powered Analysis">
-            <CalloutBox type="tip" title="Trust Scan LLM">
+            <CalloutBox type="tip" title="Trust Scan AI">
               <p>
-                Every scan includes AI-powered analysis using our Trust Scan LLM. No API keys required &mdash;
+                Every scan includes AI-powered analysis using our Trust Scan AI. No API keys required &mdash;
                 the AI evaluates scan results and provides human-readable insights about potential concerns.
                 Free, automatic, and always included.
               </p>

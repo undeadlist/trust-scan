@@ -78,7 +78,7 @@ export default function PrivacyPage() {
               <div>
                 <h4 className="text-zinc-200 font-medium mb-2">AI Analysis</h4>
                 <p>
-                  AI analysis is performed server-side using our Trust Scan LLM. No API keys are required
+                  AI analysis is performed server-side using our Trust Scan AI. No API keys are required
                   from you. The AI evaluates scan results to provide insights, but doesn&apos;t store any
                   additional personal data.
                 </p>
@@ -132,7 +132,7 @@ export default function PrivacyPage() {
                 <li><strong className="text-zinc-300">The target website itself</strong> - to analyze its content</li>
               </ul>
               <p>
-                AI analysis is performed server-side using our Trust Scan LLM and doesn&apos;t require
+                AI analysis is performed server-side using our Trust Scan AI and doesn&apos;t require
                 any external API calls from your browser.
               </p>
             </div>

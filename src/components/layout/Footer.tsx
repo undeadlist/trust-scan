@@ -153,7 +153,7 @@ export function Footer() {
             <p className="text-xs text-zinc-600">
               &copy; {currentYear} {BRAND.name}. Free and open source.
             </p>
-            <p className="text-xs text-zinc-600 text-center md:text-right max-w-lg">
+            <p className="text-xs text-zinc-600 text-center md:text-right">
               Results are informational only and provided without warranty. Always do your own research
               before connecting to any service. See our{' '}
               <Link href="/terms" className="text-zinc-500 hover:text-zinc-400 underline">

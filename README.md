@@ -29,7 +29,7 @@ Built by [UndeadList.com](https://undeadlist.com)
 - Malware download prompts
 
 ### AI Analysis
-- **Trust Scan LLM** - Server-side AI analysis (no API keys required)
+- **Trust Scan AI** - Server-side AI analysis (no API keys required)
 - Contextual claim verification
 - Holistic risk assessment
 - Actionable recommendations
@@ -39,7 +39,7 @@ Built by [UndeadList.com](https://undeadlist.com)
 ### Prerequisites
 - Node.js 20.19+ or 22.12+
 - PostgreSQL database
-- (Optional) Ollama server with Trust Scan LLM for AI analysis
+- (Optional) Ollama server with Trust Scan AI for AI analysis
 
 ### Installation
 
@@ -71,7 +71,7 @@ API_NINJAS_KEY=""
 # Optional - Higher GitHub API rate limits
 GITHUB_TOKEN=""
 
-# Optional - Trust Scan LLM (Ollama server for AI analysis)
+# Optional - Trust Scan AI (Ollama server for AI analysis)
 OLLAMA_SERVER_URL=""
 OLLAMA_MODEL="ikiru/Dolphin-Mistral-24B-Venice-Edition:latest"
 
@@ -86,7 +86,7 @@ UPSTASH_REDIS_REST_TOKEN=""
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
 - **Database**: PostgreSQL + Prisma
-- **AI**: Ollama (Trust Scan LLM)
+- **AI**: Ollama (Trust Scan AI)
 - **Threat Intel**: URLhaus (abuse.ch)
 - **Caching**: Upstash Redis
 

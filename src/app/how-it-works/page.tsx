@@ -63,7 +63,7 @@ export default function HowItWorksPage() {
           {/* AI Analysis */}
           <ContentSection title="AI Analysis">
             <p className="text-zinc-400 mb-4">
-              After automated checks, our Trust Scan LLM provides intelligent analysis:
+              After automated checks, our Trust Scan AI provides intelligent analysis:
             </p>
             <ul className="space-y-2 text-zinc-400 mb-6">
               <li className="flex items-start gap-2">

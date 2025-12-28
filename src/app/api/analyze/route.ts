@@ -1,5 +1,5 @@
 // Server-side AI Analysis Endpoint
-// Proxies requests to Trust Scan LLM (Ollama) to hide internal server details
+// Proxies requests to Trust Scan AI (Ollama) to hide internal server details
 
 import { NextRequest, NextResponse } from 'next/server';
 import { ScanResult, AIAnalysis } from '@/lib/types';

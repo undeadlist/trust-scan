@@ -9,6 +9,7 @@ import {
   ThreatData,
   RedFlag,
 } from './types';
+import { checkDomainKeywords } from './checks/patterns';
 
 interface ScoringResult {
   riskScore: number;
@@ -17,6 +18,7 @@ interface ScoringResult {
 }
 
 interface CheckResults {
+  domain: string;
   whoisData: WhoisData | null;
   sslData: SSLData | null;
   hostingData: HostingData | null;
@@ -38,6 +40,21 @@ const SEVERITY_SCORES = {
 export function calculateRiskScore(results: CheckResults): ScoringResult {
   const redFlags: RedFlag[] = [];
   let baseScore = 0;
+
+  // === Domain Name Analysis ===
+  // Check domain name for suspicious keywords
+  if (results.domain) {
+    const domainMatches = checkDomainKeywords(results.domain);
+    for (const match of domainMatches) {
+      redFlags.push({
+        category: match.category,
+        severity: match.severity,
+        title: match.description,
+        description: 'Suspicious keyword detected in domain name',
+        evidence: `Domain: ${match.matched}`,
+      });
+    }
+  }
 
   // === WHOIS Analysis ===
   if (results.whoisData && !results.whoisData.error) {

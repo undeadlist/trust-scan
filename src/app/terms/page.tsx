@@ -41,7 +41,7 @@ export default function TermsPage() {
               <p>
                 {BRAND.name} analyzes websites to provide trust indicators and potential red flags.
                 We check things like domain age, SSL certificates, hosting providers, content patterns,
-                and more. Our Trust Scan LLM provides AI-generated insights automatically with every scan.
+                and more. Our Trust Scan AI provides AI-generated insights automatically with every scan.
               </p>
               <CalloutBox type="warning" title="Important">
                 <p>

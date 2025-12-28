@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://trustscan.aibuilds.com'),
   title: {
     default: `${BRAND.name} - Free URL Scanner for AI Builders | AIBuilds`,
-    template: `%s | ${BRAND.name} by AIBuilds`,
+    template: `%s | ${BRAND.name}`,
   },
   description: `${BRAND.name} by AIBuilds - Free URL trust scanner for indie developers and AI builders. Check if websites are legit before connecting your API keys. Scam detection, domain verification, and AI-powered analysis.`,
   keywords: [

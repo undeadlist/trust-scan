@@ -340,6 +340,78 @@ const PATTERN_RULES: PatternRule[] = [
   },
 ];
 
+// Suspicious keywords commonly found in scam domain names
+const SUSPICIOUS_DOMAIN_KEYWORDS = [
+  // Obvious scam indicators
+  'scam', 'legit', 'real', 'official', 'verify',
+  // Money-related
+  'free-money', 'freemoney', 'free-cash', 'freecash', 'instant-cash',
+  'get-rich', 'getrich', 'make-money', 'makemoney', 'easy-money',
+  // Crypto scam keywords
+  'crypto-free', 'free-crypto', 'airdrop', 'double-your', 'doubleyour',
+  'guaranteed-profit', 'guaranteed-returns', 'free-btc', 'free-eth',
+  // Trust manipulation
+  'trust-me', 'trustme', 'definitely-not', 'definitelynot', 'totally-real',
+  'legit-not-scam', 'not-a-scam', 'notascam', 'safe-and-secure',
+  // Urgency indicators
+  'limited-time', 'act-now', 'dont-miss', 'last-chance',
+  // Impersonation attempts
+  'official-support', 'helpdesk-login', 'account-verify', 'secure-login',
+];
+
+// Check domain name for suspicious keywords
+export function checkDomainKeywords(domain: string): PatternMatch[] {
+  const matches: PatternMatch[] = [];
+  const lowerDomain = domain.toLowerCase();
+
+  for (const keyword of SUSPICIOUS_DOMAIN_KEYWORDS) {
+    if (lowerDomain.includes(keyword) || lowerDomain.includes(keyword.replace(/-/g, ''))) {
+      matches.push({
+        pattern: keyword,
+        category: 'suspicious_patterns',
+        severity: keyword.includes('scam') || keyword.includes('verify') ? 'high' : 'medium',
+        description: `Suspicious keyword "${keyword}" in domain name`,
+        matched: domain,
+      });
+    }
+  }
+
+  // Also check for excessive hyphens (common in scam domains)
+  const hyphenCount = (domain.match(/-/g) || []).length;
+  if (hyphenCount >= 4) {
+    matches.push({
+      pattern: 'excessive-hyphens',
+      category: 'suspicious_patterns',
+      severity: 'medium',
+      description: 'Domain has many hyphens (common in scam domains)',
+      matched: domain,
+    });
+  }
+
+  // Check for suspicious TLD + keyword combinations
+  const suspiciousTLDPatterns = [
+    /free.*\.(app|io|dev|site|online|xyz)$/i,
+    /crypto.*\.(app|io|dev|site|online|xyz)$/i,
+    /money.*\.(app|io|dev|site|online|xyz)$/i,
+    /profit.*\.(app|io|dev|site|online|xyz)$/i,
+  ];
+
+  for (const pattern of suspiciousTLDPatterns) {
+    if (pattern.test(domain)) {
+      matches.push({
+        pattern: pattern.source,
+        category: 'suspicious_patterns',
+        severity: 'medium',
+        description: 'Suspicious keyword combined with generic TLD',
+        matched: domain,
+      });
+      break; // Only add one TLD match
+    }
+  }
+
+  return matches;
+}
+
 export function analyzePatterns(content: string): PatternsData {
   const matches: PatternMatch[] = [];
   const seenCategories = new Set<string>();

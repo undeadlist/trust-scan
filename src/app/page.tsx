@@ -145,7 +145,7 @@ export default function Home() {
                         </svg>
                       }
                       title="AI Analysis"
-                      description="AI-powered deep analysis with Trust Scan LLM"
+                      description="AI-powered deep analysis with Trust Scan AI"
                     />
                   </div>
 

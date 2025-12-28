@@ -1,7 +1,7 @@
 // Trust Scan AI Analysis Infrastructure
 import { ScanResult } from './types';
 
-// Check if Trust Scan LLM (Ollama) is available
+// Check if Trust Scan AI (Ollama) is available
 export function hasTrustScanServer(): boolean {
   return !!process.env.OLLAMA_SERVER_URL;
 }
@@ -45,7 +45,7 @@ function detectSiteType(scanResult: ScanResult): string {
   return 'GENERAL_WEBSITE - Standard website evaluation. Apply balanced analysis.';
 }
 
-// Shared prompt builder for Trust Scan LLM
+// Shared prompt builder for Trust Scan AI
 export function buildAnalysisPrompt(scanResult: ScanResult): string {
   const domainAgeDays = scanResult.whoisData?.domainAge ?? null;
   const siteType = detectSiteType(scanResult);

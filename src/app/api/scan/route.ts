@@ -14,6 +14,7 @@ import { calculateRiskScore } from '@/lib/scoring';
 import { ScanResponse, ScanResult } from '@/lib/types';
 import { withTimeout, fetchWithTimeout } from '@/lib/utils/timeout';
 import { isKnownLegitDomain, getKnownEntityInfo, getKnownEntityCategory } from '@/lib/known-entities';
+import { isVerifiedSite } from '@/lib/verified-sites';
 
 const SCAN_TIMEOUT_MS = 30000;
 
@@ -189,6 +190,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ScanRespo
 
     // Calculate risk score
     const { riskScore, riskLevel, redFlags } = calculateRiskScore({
+      domain,
       whoisData: whoisResult,
       sslData: sslResult,
       hostingData: hostingResult,
@@ -264,6 +266,17 @@ export async function POST(request: NextRequest): Promise<NextResponse<ScanRespo
       scanNotes.push('Some scan data may be incomplete');
     }
 
+    // Check if site is verified
+    const verifiedSite = isVerifiedSite(domain);
+    const verifiedBadge = verifiedSite
+      ? {
+          isVerified: true,
+          verifiedAt: verifiedSite.verifiedAt,
+          expiresAt: verifiedSite.expiresAt,
+          category: verifiedSite.category,
+        }
+      : { isVerified: false };
+
     const result: ScanResult = {
       id: savedResult.id,
       url: normalizedUrl,
@@ -284,6 +297,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ScanRespo
       scanConfidence,
       scanNotes,
       isKnownEntity: false,
+      verifiedBadge,
     };
 
     return NextResponse.json({

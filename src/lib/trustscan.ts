@@ -87,7 +87,7 @@ export async function analyzeWithOllama(scanResult: ScanResult): Promise<AIAnaly
     const text = data.response?.trim();
 
     if (!text) {
-      throw new Error('No response from Trust Scan LLM');
+      throw new Error('No response from Trust Scan AI');
     }
 
     // Parse JSON, handling potential markdown code blocks

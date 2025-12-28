@@ -38,7 +38,7 @@ export default function FAQPage() {
 
               <AccordionItem title="How does the AI analysis work?">
                 <p>
-                  {BRAND.name} uses our Trust Scan LLM for intelligent analysis. After the
+                  {BRAND.name} uses our Trust Scan AI for intelligent analysis. After the
                   automated checks complete, the AI evaluates the overall risk profile and
                   provides human-readable insights about potential concerns. Everything runs
                   server-side - no configuration needed on your part.

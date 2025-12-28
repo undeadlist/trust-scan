@@ -123,6 +123,73 @@ export default function BestPracticesPage() {
             </CalloutBox>
           </ContentSection>
 
+          {/* Honeypot Education */}
+          <ContentSection title="What is a Honeypot Scam?">
+            <div className="space-y-6">
+              <div className="p-4 bg-zinc-900/50 border border-zinc-800 rounded-lg">
+                <h4 className="font-medium text-zinc-200 mb-2">Definition</h4>
+                <p className="text-sm text-zinc-400">
+                  A honeypot is a fake service designed to look legitimate while secretly harvesting your credentials,
+                  API keys, or other sensitive data. They often look like helpful developer tools but are designed
+                  to steal your access tokens and use them for malicious purposes.
+                </p>
+              </div>
+
+              <div>
+                <h4 className="font-medium text-zinc-200 mb-3">Why Indie/Vibe Devs Are Targets</h4>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                    <p className="text-sm text-zinc-300"><strong>Ship fast mindset</strong></p>
+                    <p className="text-xs text-zinc-500">Less time for security vetting</p>
+                  </div>
+                  <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                    <p className="text-sm text-zinc-300"><strong>Solo developers</strong></p>
+                    <p className="text-xs text-zinc-500">No security team to review tools</p>
+                  </div>
+                  <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                    <p className="text-sm text-zinc-300"><strong>Valuable assets</strong></p>
+                    <p className="text-xs text-zinc-500">API keys, cloud credentials, payment keys</p>
+                  </div>
+                  <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                    <p className="text-sm text-zinc-300"><strong>Active on social</strong></p>
+                    <p className="text-xs text-zinc-500">Easy to find and target</p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-medium text-zinc-200 mb-3">Common Honeypot Patterns</h4>
+                <div className="space-y-2">
+                  <HoneypotPattern text="&quot;Free tier&quot; tools that require your database URL" />
+                  <HoneypotPattern text="AI wrappers asking for your OpenAI/Anthropic keys" />
+                  <HoneypotPattern text="&quot;One-click deploy&quot; services wanting AWS credentials" />
+                  <HoneypotPattern text="GitHub apps requesting write access to all repos" />
+                  <HoneypotPattern text="&quot;Free hosting&quot; requiring your Stripe API key" />
+                  <HoneypotPattern text="Chrome extensions asking for broad permissions" />
+                </div>
+              </div>
+
+              <CalloutBox type="info" title="The Rise of AI-Powered Honeypots">
+                <p className="text-sm">
+                  AI makes it faster than ever to create convincing fake sites. Scammers can now generate professional
+                  landing pages, documentation, and even chatbots that respond to your questions. The barrier to
+                  creating sophisticated honeypots is lower than ever.
+                </p>
+              </CalloutBox>
+
+              <div className="p-4 bg-indigo-500/10 border border-indigo-500/30 rounded-lg">
+                <h4 className="font-medium text-indigo-400 mb-2">How {BRAND.name} Helps</h4>
+                <ul className="space-y-1 text-sm text-zinc-400">
+                  <li>&bull; Domain age verification (honeypots are usually new)</li>
+                  <li>&bull; Red flag pattern detection for scam language</li>
+                  <li>&bull; Credential harvesting keyword detection</li>
+                  <li>&bull; AI-powered contextual analysis</li>
+                  <li>&bull; Threat intelligence database checks</li>
+                </ul>
+              </div>
+            </div>
+          </ContentSection>
+
           {/* Quick Checklist */}
           <ContentSection title="Quick Pre-Connection Checklist">
             <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-6">
@@ -198,6 +265,17 @@ function QuickCheck({ text }: { text: string }) {
         <span className="text-transparent">&check;</span>
       </div>
       <span className="text-zinc-300 text-sm">{text}</span>
+    </div>
+  );
+}
+
+function HoneypotPattern({ text }: { text: string }) {
+  return (
+    <div className="flex items-start gap-3 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+      <svg className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+      <span className="text-zinc-300 text-sm" dangerouslySetInnerHTML={{ __html: text }} />
     </div>
   );
 }

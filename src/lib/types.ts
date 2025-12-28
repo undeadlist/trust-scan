@@ -114,6 +114,13 @@ export interface RedFlag {
   evidence?: string;
 }
 
+export interface VerifiedBadgeInfo {
+  isVerified: boolean;
+  verifiedAt?: string;
+  expiresAt?: string;
+  category?: string;
+}
+
 export interface ScanResult {
   id: string;
   url: string;
@@ -135,6 +142,8 @@ export interface ScanResult {
   scanConfidence: 'high' | 'medium' | 'low';
   scanNotes: string[];
   isKnownEntity: boolean;
+  // Verified badge info
+  verifiedBadge?: VerifiedBadgeInfo;
 }
 
 export interface AIAnalysis {

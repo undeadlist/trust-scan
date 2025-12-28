@@ -45,7 +45,7 @@ export default function SiteOwnersPage() {
               />
               <QuickWin
                 number="2"
-                title="Prove You\'re Real"
+                title="Prove You're Real"
                 items={[
                   { text: 'Link to GitHub', desc: 'Show your repos or org' },
                   { text: 'Social presence', desc: 'Twitter, LinkedIn, etc.' },

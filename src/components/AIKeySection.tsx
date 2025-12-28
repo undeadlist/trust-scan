@@ -18,7 +18,7 @@ export function AIKeySection({ serverConfig }: AIKeySectionProps) {
           </span>
         </div>
         <p className="text-xs text-zinc-500 mt-1">
-          Powered by Trust Scan LLM - AI analysis is automatically included.
+          Powered by Trust Scan AI - AI analysis is automatically included.
         </p>
       </div>
     );
