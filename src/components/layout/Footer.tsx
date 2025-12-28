@@ -47,16 +47,6 @@ export function Footer() {
                 <span className="text-sm font-medium">{BRAND.builtBy}</span>
               </a>
             </div>
-            <div className="flex items-center gap-3 mt-4">
-              <Image
-                src="/verified-badge.png"
-                alt="Trust Scan Verified"
-                width={64}
-                height={64}
-                className="rounded-lg"
-              />
-              <span className="text-sm font-medium text-emerald-400">Trust Scan Verified</span>
-            </div>
           </div>
 
           {/* Quick Links */}

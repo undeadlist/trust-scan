@@ -128,7 +128,7 @@ export interface ScanResult {
 }
 
 // AI Provider types
-export type AIProvider = 'gemini' | 'claude';
+export type AIProvider = 'trustscan' | 'gemini';
 
 export interface AIAnalysis {
   summary: string;

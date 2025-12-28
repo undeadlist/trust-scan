@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ScanResult, ScanResponse } from '@/lib/types';
 import { AIKeySection } from './AIKeySection';
 
@@ -11,16 +11,14 @@ interface ScannerProps {
 }
 
 interface ServerConfig {
-  geminiKeyConfigured: boolean;
-  claudeKeyConfigured: boolean;
+  trustScanAvailable: boolean;
 }
 
 export function Scanner({ onScanComplete, onScanStart, isScanning }: ScannerProps) {
   const [url, setUrl] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [serverConfig, setServerConfig] = useState<ServerConfig>({
-    geminiKeyConfigured: false,
-    claudeKeyConfigured: false,
+    trustScanAvailable: false,
   });
 
   // Fetch server config on mount
@@ -29,8 +27,7 @@ export function Scanner({ onScanComplete, onScanStart, isScanning }: ScannerProp
       .then((res) => res.json())
       .then((data) => {
         setServerConfig({
-          geminiKeyConfigured: data.geminiKeyConfigured || false,
-          claudeKeyConfigured: data.claudeKeyConfigured || false,
+          trustScanAvailable: data.trustScanAvailable || false,
         });
       })
       .catch(() => {
@@ -70,11 +67,6 @@ export function Scanner({ onScanComplete, onScanStart, isScanning }: ScannerProp
       setError(err instanceof Error ? err.message : 'Failed to scan URL');
     }
   };
-
-  const handleKeyChange = useCallback((_provider: 'gemini', _key: string | null) => {
-    // Key changes are handled by AIKeySection component
-    // This callback can be used for logging or additional logic
-  }, []);
 
   return (
     <div className="w-full max-w-2xl mx-auto space-y-6">
@@ -142,7 +134,7 @@ export function Scanner({ onScanComplete, onScanStart, isScanning }: ScannerProp
         )}
       </form>
 
-      <AIKeySection onKeyChange={handleKeyChange} serverConfig={serverConfig} />
+      <AIKeySection serverConfig={serverConfig} />
     </div>
   );
 }

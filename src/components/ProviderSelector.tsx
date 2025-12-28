@@ -7,24 +7,24 @@ import { PROVIDER_INFO } from '@/lib/ai';
 interface ProviderSelectorProps {
   selectedProvider: AIProvider;
   onProviderChange: (provider: AIProvider) => void;
+  trustScanAvailable?: boolean;
   geminiServerKey?: boolean;
-  claudeServerKey?: boolean;
 }
 
 export function ProviderSelector({
   selectedProvider,
   onProviderChange,
+  trustScanAvailable = false,
   geminiServerKey = false,
-  claudeServerKey = false,
 }: ProviderSelectorProps) {
-  const providers: AIProvider[] = ['gemini', 'claude'];
+  const providers: AIProvider[] = ['trustscan', 'gemini'];
 
   return (
     <div className="flex gap-2">
       {providers.map((provider) => {
         const info = PROVIDER_INFO[provider];
         const isSelected = selectedProvider === provider;
-        const hasServerKey = provider === 'gemini' ? geminiServerKey : claudeServerKey;
+        const hasServerKey = provider === 'trustscan' ? trustScanAvailable : geminiServerKey;
 
         return (
           <button

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ScanResult, AIAnalysis, RedFlag, AIProvider } from '@/lib/types';
 import { RiskBadge, SeverityBadge } from './RiskBadge';
-import { analyzeWithAI, getStorageKeyForProvider, STORAGE_KEYS, PROVIDER_INFO } from '@/lib/ai';
+import { PROVIDER_INFO } from '@/lib/ai';
 
 interface ReportProps {
   result: ScanResult;
@@ -14,20 +14,32 @@ export function Report({ result, onNewScan }: ReportProps) {
   const [aiAnalysis, setAiAnalysis] = useState<AIAnalysis | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
-  const [currentProvider, setCurrentProvider] = useState<AIProvider>('gemini');
+  const [currentProvider, setCurrentProvider] = useState<AIProvider>('trustscan');
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set(['redflags', 'ai'])
   );
   const hasRunAnalysis = useRef(false);
 
-  const runAiAnalysis = useCallback(async (provider: AIProvider, key: string) => {
+  // Run analysis using Trust Scan AI (server-side)
+  const runTrustScanAnalysis = useCallback(async () => {
     setAiLoading(true);
     setAiError(null);
-    setCurrentProvider(provider);
+    setCurrentProvider('trustscan');
 
     try {
-      const analysis = await analyzeWithAI(provider, key, result);
-      setAiAnalysis(analysis);
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scanResult: result }),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.error || 'Analysis failed');
+      }
+
+      setAiAnalysis(data.analysis);
     } catch (err) {
       setAiError(err instanceof Error ? err.message : 'AI analysis failed');
     } finally {
@@ -43,19 +55,24 @@ export function Report({ result, onNewScan }: ReportProps) {
   }, [result.id]);
 
   useEffect(() => {
-    // Auto-run AI analysis if key is available
+    // Auto-run AI analysis if available
     if (hasRunAnalysis.current) return;
 
-    // Get the saved provider preference
-    const savedProvider = (localStorage.getItem(STORAGE_KEYS.provider) || 'gemini') as AIProvider;
-    const storageKey = getStorageKeyForProvider(savedProvider);
-    const savedKey = localStorage.getItem(storageKey);
+    // Check server config
+    fetch('/api/config')
+      .then(res => res.json())
+      .then(config => {
+        if (hasRunAnalysis.current) return;
 
-    if (savedKey) {
-      hasRunAnalysis.current = true;
-      runAiAnalysis(savedProvider, savedKey);
-    }
-  }, [result.id, runAiAnalysis]);
+        if (config.trustScanAvailable) {
+          hasRunAnalysis.current = true;
+          runTrustScanAnalysis();
+        }
+      })
+      .catch(() => {
+        // Server not available, analysis will show unavailable state
+      });
+  }, [result.id, runTrustScanAnalysis]);
 
   const toggleSection = (section: string) => {
     const newExpanded = new Set(expandedSections);
@@ -200,7 +217,7 @@ export function Report({ result, onNewScan }: ReportProps) {
         ) : (
           <div className="p-4 bg-zinc-800/50 border border-zinc-700 rounded-lg">
             <p className="text-zinc-400 text-sm">
-              Add an AI API key above to enable AI-powered analysis of scan results.
+              AI-powered analysis is not currently available.
             </p>
           </div>
         )}

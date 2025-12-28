@@ -1,19 +1,18 @@
 // Shared AI Provider Infrastructure
 import { ScanResult, AIAnalysis, AIProvider } from './types';
 import { analyzeWithGemini, isValidGeminiKey } from './gemini';
-import { analyzeWithClaude, isValidClaudeKey } from './claude';
 
 // Provider display names and URLs
 export const PROVIDER_INFO: Record<AIProvider, { name: string; keyUrl: string; keyUrlLabel: string }> = {
+  trustscan: {
+    name: 'Trust Scan AI',
+    keyUrl: '',
+    keyUrlLabel: 'powered by UndeadList',
+  },
   gemini: {
     name: 'Gemini',
     keyUrl: 'https://aistudio.google.com/app/apikey',
     keyUrlLabel: 'Google AI Studio',
-  },
-  claude: {
-    name: 'Claude',
-    keyUrl: 'https://console.anthropic.com/settings/keys',
-    keyUrlLabel: 'Anthropic Console',
   },
 };
 
@@ -21,51 +20,56 @@ export const PROVIDER_INFO: Record<AIProvider, { name: string; keyUrl: string; k
 export const STORAGE_KEYS = {
   provider: 'vibecheck_ai_provider',
   geminiKey: 'vibecheck_gemini_key',
-  claudeKey: 'vibecheck_claude_key',
 } as const;
 
 export function getStorageKeyForProvider(provider: AIProvider): string {
-  return provider === 'claude' ? STORAGE_KEYS.claudeKey : STORAGE_KEYS.geminiKey;
+  // Only Gemini uses client-side key storage
+  return STORAGE_KEYS.geminiKey;
+}
+
+// Check if Trust Scan LLM (Ollama) is available
+export function hasTrustScanServer(): boolean {
+  return !!process.env.OLLAMA_SERVER_URL;
 }
 
 // Check if server has a configured key for provider
 export function hasServerKey(provider: AIProvider): boolean {
-  if (provider === 'claude') {
-    return !!process.env.ANTHROPIC_API_KEY;
+  if (provider === 'trustscan') {
+    return !!process.env.OLLAMA_SERVER_URL;
   }
   return !!process.env.GEMINI_API_KEY;
 }
 
-// Get API key for provider (server key takes priority)
+// Get API key for provider (server key takes priority for Gemini)
 export function getApiKey(provider: AIProvider, clientKey?: string | null): string | null {
-  if (provider === 'claude') {
-    if (process.env.ANTHROPIC_API_KEY) {
-      return process.env.ANTHROPIC_API_KEY;
-    }
-  } else {
-    if (process.env.GEMINI_API_KEY) {
-      return process.env.GEMINI_API_KEY;
-    }
+  if (provider === 'trustscan') {
+    // Trust Scan doesn't need client key - it's server-side only
+    return null;
+  }
+  if (process.env.GEMINI_API_KEY) {
+    return process.env.GEMINI_API_KEY;
   }
   return clientKey || null;
 }
 
 // Validate API key format for provider
 export function isValidApiKey(provider: AIProvider, key: string): boolean {
-  if (provider === 'claude') {
-    return isValidClaudeKey(key);
+  if (provider === 'trustscan') {
+    // Trust Scan doesn't use client keys
+    return false;
   }
   return isValidGeminiKey(key);
 }
 
 // Main analysis function - routes to appropriate provider
+// Note: Trust Scan should be called via /api/analyze, not this function
 export async function analyzeWithAI(
   provider: AIProvider,
   apiKey: string,
   scanResult: ScanResult
 ): Promise<AIAnalysis> {
-  if (provider === 'claude') {
-    return analyzeWithClaude(apiKey, scanResult);
+  if (provider === 'trustscan') {
+    throw new Error('Trust Scan AI must be called via /api/analyze endpoint');
   }
   return analyzeWithGemini(apiKey, scanResult);
 }
