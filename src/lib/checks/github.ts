@@ -7,7 +7,7 @@ const GITHUB_TIMEOUT_MS = 15000;
 function createOctokit(): Octokit {
   return new Octokit({
     auth: process.env.GITHUB_TOKEN || undefined,
-    userAgent: 'VibeCheck/1.0',
+    userAgent: 'TrustScan/1.0',
   });
 }
 

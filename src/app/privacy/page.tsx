@@ -8,9 +8,9 @@ import {
 import { BRAND } from '@/lib/design-system';
 
 export const metadata: Metadata = {
-  title: `Privacy Policy - ${BRAND.name} by AIBuilds`,
-  description: `Privacy policy for ${BRAND.name}. We don't sell your data, don't require API keys, and keep data collection minimal. Open source and transparent. By AIBuilds.`,
-  keywords: ['trust scan privacy', 'aibuilds privacy policy', 'data privacy', 'no tracking', 'open source'],
+  title: `Privacy Policy - ${BRAND.name} by UndeadList`,
+  description: `Privacy policy for ${BRAND.name}. We don't sell your data, don't require API keys, and keep data collection minimal. Open source and transparent. By UndeadList.`,
+  keywords: ['trust scan privacy', 'undeadlist privacy policy', 'data privacy', 'no tracking', 'open source'],
 };
 
 export default function PrivacyPage() {

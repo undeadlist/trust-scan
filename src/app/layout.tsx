@@ -27,10 +27,10 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL('https://trustscan.aibuilds.com'),
   title: {
-    default: `${BRAND.name} - Free URL Scanner for AI Builders | AIBuilds`,
+    default: `${BRAND.name} - Free URL Scanner for AI Builders | UndeadList`,
     template: `%s | ${BRAND.name}`,
   },
-  description: `${BRAND.name} by AIBuilds - Free URL trust scanner for indie developers and AI builders. Check if websites are legit before connecting your API keys. Scam detection, domain verification, and AI-powered analysis.`,
+  description: `${BRAND.name} by UndeadList - Free URL trust scanner for indie developers and AI builders. Check if websites are legit before connecting your API keys. Scam detection, domain verification, and AI-powered analysis.`,
   keywords: [
     // Primary keywords (target ranking)
     "trust scan",
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: BRAND.builtBy, url: BRAND.builtByUrl }],
   creator: BRAND.builtBy,
-  publisher: 'AIBuilds',
+  publisher: 'UndeadList',
   category: 'Security Tools',
   classification: 'Web Application',
   icons: {
@@ -75,9 +75,9 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   openGraph: {
     title: `${BRAND.name} - Free URL Scanner for AI Builders`,
-    description: `Check if websites are legit before connecting your API keys. Free scam detection and domain verification by AIBuilds.`,
+    description: `Check if websites are legit before connecting your API keys. Free scam detection and domain verification by UndeadList.`,
     type: "website",
-    siteName: `${BRAND.name} by AIBuilds`,
+    siteName: `${BRAND.name} by UndeadList`,
     url: 'https://trustscan.aibuilds.com',
     locale: 'en_US',
     images: [
@@ -85,7 +85,7 @@ export const metadata: Metadata = {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: `${BRAND.name} - Free URL Scanner for AI Builders by AIBuilds`,
+        alt: `${BRAND.name} - Free URL Scanner for AI Builders by UndeadList`,
         type: 'image/png',
       },
     ],
@@ -95,7 +95,7 @@ export const metadata: Metadata = {
     site: '@undeadlistshop',
     creator: '@undeadlistshop',
     title: `${BRAND.name} - Free URL Scanner`,
-    description: `Check if websites are legit before handing over your API keys. Free and open source by AIBuilds.`,
+    description: `Check if websites are legit before handing over your API keys. Free and open source by UndeadList.`,
     images: ['/og-image.png'],
   },
   robots: {
@@ -149,9 +149,9 @@ const jsonLd = {
     {
       '@type': 'Organization',
       '@id': 'https://trustscan.aibuilds.com/#organization',
-      name: 'AIBuilds',
-      alternateName: 'UndeadList',
-      url: 'https://aibuilds.com',
+      name: 'UndeadList',
+      alternateName: 'Trust Scan',
+      url: 'https://undeadlist.com',
       logo: {
         '@type': 'ImageObject',
         url: 'https://trustscan.aibuilds.com/logo.png',

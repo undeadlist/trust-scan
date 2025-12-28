@@ -12,9 +12,9 @@ import {
 import { BRAND } from '@/lib/design-system';
 
 export const metadata: Metadata = {
-  title: `For Site Owners - Improve Your ${BRAND.name} Score | AIBuilds`,
-  description: `How to improve your trust score on ${BRAND.name}. Tips for site owners to build credibility, earn the verified badge, and build trust with indie developers. By AIBuilds.`,
-  keywords: ['improve trust score', 'website trust badge', 'trust scan verified', 'build website credibility', 'site owner tips', 'aibuilds', 'indie developer trust'],
+  title: `For Site Owners - Improve Your ${BRAND.name} Score | UndeadList`,
+  description: `How to improve your trust score on ${BRAND.name}. Tips for site owners to build credibility, earn the verified badge, and build trust with indie developers. By UndeadList.`,
+  keywords: ['improve trust score', 'website trust badge', 'trust scan verified', 'build website credibility', 'site owner tips', 'undeadlist', 'indie developer trust'],
 };
 
 export default function SiteOwnersPage() {

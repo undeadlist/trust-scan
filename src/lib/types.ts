@@ -1,4 +1,4 @@
-// VibeCheck Types
+// Trust Scan Types
 
 export interface WhoisData {
   domainAge: number | null; // days

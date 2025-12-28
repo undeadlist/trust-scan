@@ -45,7 +45,7 @@ Built by [UndeadList.com](https://undeadlist.com)
 
 ```bash
 # Clone and install
-cd vibecheck
+cd trust-scan
 npm install
 
 # Configure environment
@@ -63,7 +63,7 @@ npm run dev
 
 ```env
 # Required
-DATABASE_URL="postgresql://user:password@localhost:5432/vibecheck"
+DATABASE_URL="postgresql://user:password@localhost:5432/trustscan"
 
 # Optional - Enhanced WHOIS data
 API_NINJAS_KEY=""
@@ -93,7 +93,7 @@ UPSTASH_REDIS_REST_TOKEN=""
 ## Project Structure
 
 ```
-vibecheck/
+trust-scan/
 ├── prisma/
 │   └── schema.prisma          # Database schema
 ├── src/

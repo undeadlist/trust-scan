@@ -1,4 +1,4 @@
-# Trust Scan by AIBuilds
+# Trust Scan by UndeadList
 # https://trustscan.aibuilds.com
 
 # Allow all crawlers full access

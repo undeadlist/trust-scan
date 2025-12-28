@@ -9,9 +9,9 @@ import {
 import { BRAND } from '@/lib/design-system';
 
 export const metadata: Metadata = {
-  title: `Terms of Service - ${BRAND.name} by AIBuilds`,
-  description: `Terms of service for ${BRAND.name}. A free, open-source URL scanner for indie developers. Simple, readable terms. By AIBuilds.`,
-  keywords: ['trust scan terms', 'aibuilds terms of service', 'free url scanner', 'open source terms'],
+  title: `Terms of Service - ${BRAND.name} by UndeadList`,
+  description: `Terms of service for ${BRAND.name}. A free, open-source URL scanner for indie developers. Simple, readable terms. By UndeadList.`,
+  keywords: ['trust scan terms', 'undeadlist terms of service', 'free url scanner', 'open source terms'],
 };
 
 export default function TermsPage() {

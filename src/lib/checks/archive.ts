@@ -8,7 +8,7 @@ export async function checkArchive(url: string): Promise<ArchiveData> {
 
     const response = await fetchWithTimeout(cdxUrl, {
       headers: {
-        'User-Agent': 'VibeCheck/1.0 (Trust Scanner)',
+        'User-Agent': 'TrustScan/1.0',
       },
     }, 15000);
 
