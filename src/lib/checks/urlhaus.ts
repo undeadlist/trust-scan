@@ -52,7 +52,6 @@ export async function checkURLhaus(url: string): Promise<ThreatData> {
     };
   } catch (error) {
     // Don't fail the scan if URLhaus is unavailable
-    console.warn('URLhaus check failed:', error);
     return {
       isMalicious: false,
       threat: null,

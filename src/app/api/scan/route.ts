@@ -147,9 +147,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<ScanRespo
           cached: true,
         });
       }
-    } catch (dbError) {
+    } catch {
       // Database might not be available, continue with scan
-      console.warn('Database not available, skipping cache check:', dbError);
     }
 
     // Perform all checks in parallel with timeout
@@ -229,8 +228,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ScanRespo
           expiresAt,
         },
       });
-    } catch (dbError) {
-      console.warn('Failed to save to database:', dbError);
+    } catch {
       // Create a mock result without database
       savedResult = {
         id: `temp-${Date.now()}`,
@@ -294,7 +292,6 @@ export async function POST(request: NextRequest): Promise<NextResponse<ScanRespo
       cached: false,
     });
   } catch (error) {
-    console.error('Scan error:', error);
     return NextResponse.json(
       {
         success: false,

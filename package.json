@@ -1,6 +1,7 @@
 {
-  "name": "vibecheck",
-  "version": "0.1.0",
+  "name": "trust-scan",
+  "version": "1.0.0",
+  "description": "Trust Scan - Free URL scanner for AI builders. Check if that shiny new service is legit before you hand over your API keys.",
   "private": true,
   "scripts": {
     "dev": "next dev",

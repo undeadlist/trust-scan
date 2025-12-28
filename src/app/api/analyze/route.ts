@@ -50,7 +50,6 @@ export async function POST(request: NextRequest): Promise<NextResponse<AnalyzeRe
       analysis,
     });
   } catch (error) {
-    console.error('AI analysis error:', error);
     return NextResponse.json(
       {
         success: false,

@@ -14,6 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://trustscan.aibuilds.com'),
   title: `${BRAND.name} - Trust Scanner for AI Builders`,
   description: `${BRAND.tagline}. Check if that shiny new service is legit before you hand over your API keys. Free and open source.`,
   keywords: [
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
     "ai builder",
     "indie dev",
     "api security",
-    "vibe check",
+    "trust scan",
   ],
   authors: [{ name: BRAND.builtBy, url: BRAND.builtByUrl }],
   creator: BRAND.builtBy,
@@ -38,11 +39,21 @@ export const metadata: Metadata = {
     description: `${BRAND.tagline}. Check if that shiny new service is legit before you hand over your API keys.`,
     type: "website",
     siteName: BRAND.name,
+    url: 'https://trustscan.aibuilds.com',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: `${BRAND.name} - Trust Scanner for AI Builders`,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: `${BRAND.name} - Trust Scanner`,
     description: `${BRAND.tagline}. Free and open source trust scanner.`,
+    images: ['/og-image.png'],
   },
   robots: {
     index: true,

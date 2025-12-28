@@ -1,0 +1,14 @@
+# Trust Scan - Robots.txt
+# https://trustscan.aibuilds.com
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://trustscan.aibuilds.com/sitemap.xml
+
+# Crawl delay (be nice to our server)
+Crawl-delay: 1
+
+# Disallow API routes from indexing
+Disallow: /api/

@@ -40,7 +40,6 @@ export async function getCachedThreatData(url: string): Promise<ThreatData> {
 
   // If Redis is not configured, go direct to URLhaus
   if (!redis) {
-    console.log('Upstash not configured, calling URLhaus directly');
     return checkURLhaus(url);
   }
 
@@ -49,7 +48,6 @@ export async function getCachedThreatData(url: string): Promise<ThreatData> {
     const cached = await redis.get<ThreatData>(cacheKey);
 
     if (cached) {
-      console.log(`Threat cache hit for ${url}`);
       return {
         ...cached,
         source: 'cache',
@@ -57,7 +55,6 @@ export async function getCachedThreatData(url: string): Promise<ThreatData> {
     }
 
     // Cache miss - fetch from URLhaus
-    console.log(`Threat cache miss for ${url}, fetching from URLhaus`);
     const freshData = await checkURLhaus(url);
 
     // Cache the result (longer TTL for malicious URLs since they don't change)
@@ -65,9 +62,8 @@ export async function getCachedThreatData(url: string): Promise<ThreatData> {
     await redis.setex(cacheKey, ttl, JSON.stringify(freshData));
 
     return freshData;
-  } catch (error) {
-    console.warn('Redis cache error, falling back to direct lookup:', error);
-    // If Redis fails, still try to get the data
+  } catch {
+    // If Redis fails, fall back to direct lookup
     return checkURLhaus(url);
   }
 }

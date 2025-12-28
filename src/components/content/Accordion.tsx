@@ -15,6 +15,7 @@ export function AccordionItem({ title, children, defaultOpen = false }: Accordio
     <div className="border-b border-zinc-800 last:border-0">
       <button
         onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
         className="w-full flex items-center justify-between py-4 text-left hover:text-red-400 transition-colors"
       >
         <span className="font-medium text-zinc-200">{title}</span>
@@ -25,6 +26,7 @@ export function AccordionItem({ title, children, defaultOpen = false }: Accordio
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
+          aria-hidden="true"
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
@@ -33,6 +35,7 @@ export function AccordionItem({ title, children, defaultOpen = false }: Accordio
         className={`overflow-hidden transition-all duration-200 ${
           isOpen ? 'max-h-96 pb-4' : 'max-h-0'
         }`}
+        aria-hidden={!isOpen}
       >
         <div className="text-zinc-400 text-sm leading-relaxed">
           {children}
