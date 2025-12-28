@@ -39,6 +39,7 @@ export default function HowItWorksPage() {
           title={`How ${BRAND.name} Works`}
           subtitle="Transparent methodology for trust assessment"
           breadcrumb={{ label: 'Home', href: '/' }}
+          logo={{ src: '/logo.png', alt: BRAND.name, width: 240, height: 240 }}
         />
 
         <div className="max-w-4xl mx-auto space-y-8">

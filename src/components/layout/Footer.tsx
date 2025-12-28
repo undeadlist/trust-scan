@@ -17,8 +17,8 @@ export function Footer() {
               <Image
                 src="/logo.png"
                 alt={BRAND.name}
-                width={48}
-                height={48}
+                width={72}
+                height={72}
                 className="rounded-xl"
               />
               <div>
@@ -40,12 +40,22 @@ export function Footer() {
                 <Image
                   src="/undeadlist-logo.png"
                   alt={BRAND.builtBy}
-                  width={24}
-                  height={24}
+                  width={54}
+                  height={54}
                   className="rounded"
                 />
                 <span className="text-sm font-medium">{BRAND.builtBy}</span>
               </a>
+            </div>
+            <div className="flex items-center gap-2 mt-4">
+              <Image
+                src="/verified-badge.png"
+                alt="Trust Scan Verified"
+                width={32}
+                height={32}
+                className="rounded"
+              />
+              <span className="text-xs text-emerald-400">Trust Scan Verified</span>
             </div>
           </div>
 

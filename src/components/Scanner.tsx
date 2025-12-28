@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
-import { ScanResult, ScanResponse } from '@/lib/types';
-import { KeyInput } from './KeyInput';
+import React, { useState, useCallback, useEffect } from 'react';
+import { ScanResult, ScanResponse, AIProvider } from '@/lib/types';
+import { AIKeySection } from './AIKeySection';
 
 interface ScannerProps {
   onScanComplete: (result: ScanResult) => void;
@@ -10,9 +10,33 @@ interface ScannerProps {
   isScanning: boolean;
 }
 
+interface ServerConfig {
+  geminiKeyConfigured: boolean;
+  claudeKeyConfigured: boolean;
+}
+
 export function Scanner({ onScanComplete, onScanStart, isScanning }: ScannerProps) {
   const [url, setUrl] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [serverConfig, setServerConfig] = useState<ServerConfig>({
+    geminiKeyConfigured: false,
+    claudeKeyConfigured: false,
+  });
+
+  // Fetch server config on mount
+  useEffect(() => {
+    fetch('/api/config')
+      .then((res) => res.json())
+      .then((data) => {
+        setServerConfig({
+          geminiKeyConfigured: data.geminiKeyConfigured || false,
+          claudeKeyConfigured: data.claudeKeyConfigured || false,
+        });
+      })
+      .catch(() => {
+        // Ignore errors, use defaults
+      });
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,8 +71,9 @@ export function Scanner({ onScanComplete, onScanStart, isScanning }: ScannerProp
     }
   };
 
-  const handleKeyChange = useCallback(() => {
-    // Key changes are handled by KeyInput component
+  const handleKeyChange = useCallback((provider: AIProvider, key: string | null) => {
+    // Key changes are handled by AIKeySection component
+    // This callback can be used for logging or additional logic
   }, []);
 
   return (
@@ -117,7 +142,7 @@ export function Scanner({ onScanComplete, onScanStart, isScanning }: ScannerProp
         )}
       </form>
 
-      <KeyInput onKeyChange={handleKeyChange} />
+      <AIKeySection onKeyChange={handleKeyChange} serverConfig={serverConfig} />
     </div>
   );
 }

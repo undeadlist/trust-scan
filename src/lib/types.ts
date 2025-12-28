@@ -127,18 +127,22 @@ export interface ScanResult {
   isKnownEntity: boolean;
 }
 
-export interface GeminiAnalysis {
+// AI Provider types
+export type AIProvider = 'gemini' | 'claude';
+
+export interface AIAnalysis {
   summary: string;
   concerns: string[];
   positives: string[];
   reasoning: string;
-  // New structured response fields
   riskLevel?: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
   verdict?: 'TRUSTWORTHY' | 'CAUTION' | 'SUSPICIOUS' | 'AVOID';
   falsePositiveCheck?: string;
-  // Legacy field for backwards compat
   recommendation?: 'safe' | 'caution' | 'avoid';
 }
+
+// Backward compatibility alias
+export type GeminiAnalysis = AIAnalysis;
 
 export interface ScanRequest {
   url: string;

@@ -30,6 +30,7 @@ export default function BestPracticesPage() {
           title="Best Practices"
           subtitle="Protecting Yourself as an Indie Dev"
           breadcrumb={{ label: 'Home', href: '/' }}
+          logo={{ src: '/logo.png', alt: BRAND.name, width: 240, height: 240 }}
         />
 
         <div className="max-w-4xl mx-auto space-y-8">

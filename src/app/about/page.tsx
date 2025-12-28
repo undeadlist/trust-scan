@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import Image from 'next/image';
 import {
   PageLayout,
   PageHero,
@@ -20,20 +21,20 @@ export default function AboutPage() {
           title={`About ${BRAND.name}`}
           subtitle="Free. Open source. Built for AI builders."
           breadcrumb={{ label: 'Home', href: '/' }}
+          logo={{ src: '/logo.png', alt: BRAND.name, width: 240, height: 240 }}
         />
 
         <div className="max-w-3xl mx-auto space-y-8">
           {/* Built By Section */}
           <ContentSection>
             <div className="flex items-center gap-4 p-6 bg-zinc-900/50 border border-zinc-800 rounded-xl">
-              <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-indigo-500 rounded-xl flex items-center justify-center">
-                <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-                  <circle cx="8" cy="10" r="1.5"/>
-                  <circle cx="16" cy="10" r="1.5"/>
-                  <path d="M12 16c-2.21 0-4-1.79-4-4h8c0 2.21-1.79 4-4 4z"/>
-                </svg>
-              </div>
+              <Image
+                src="/undeadlist-logo.png"
+                alt={BRAND.builtBy}
+                width={144}
+                height={144}
+                className="rounded-xl flex-shrink-0"
+              />
               <div>
                 <p className="text-sm text-zinc-500">Built by the team behind</p>
                 <a

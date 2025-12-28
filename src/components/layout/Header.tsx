@@ -19,8 +19,8 @@ export function Header() {
             <Image
               src="/logo.png"
               alt={BRAND.name}
-              width={56}
-              height={56}
+              width={72}
+              height={72}
               className="rounded-xl"
             />
             <div className="flex flex-col">

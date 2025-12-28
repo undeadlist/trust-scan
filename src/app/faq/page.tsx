@@ -20,8 +20,9 @@ export default function FAQPage() {
       <div className="container mx-auto px-4">
         <PageHero
           title="Frequently Asked Questions"
-          subtitle="Common questions about AIBuilds.net"
+          subtitle={`Common questions about ${BRAND.name}`}
           breadcrumb={{ label: 'Home', href: '/' }}
+          logo={{ src: '/logo.png', alt: BRAND.name, width: 240, height: 240 }}
         />
 
         <div className="max-w-3xl mx-auto">

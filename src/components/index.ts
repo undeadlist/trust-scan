@@ -1,6 +1,8 @@
 export { Scanner } from './Scanner';
 export { Report } from './Report';
 export { KeyInput } from './KeyInput';
+export { ProviderSelector } from './ProviderSelector';
+export { AIKeySection } from './AIKeySection';
 export { RiskBadge, SeverityBadge } from './RiskBadge';
 
 // Layout components

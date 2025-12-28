@@ -1,32 +1,32 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { ScanResult, GeminiAnalysis, RedFlag } from '@/lib/types';
+import { ScanResult, AIAnalysis, RedFlag, AIProvider } from '@/lib/types';
 import { RiskBadge, SeverityBadge } from './RiskBadge';
-import { analyzeWithGemini } from '@/lib/gemini';
+import { analyzeWithAI, getStorageKeyForProvider, STORAGE_KEYS, PROVIDER_INFO } from '@/lib/ai';
 
 interface ReportProps {
   result: ScanResult;
   onNewScan: () => void;
 }
 
-const GEMINI_KEY_STORAGE = 'vibecheck_gemini_key';
-
 export function Report({ result, onNewScan }: ReportProps) {
-  const [aiAnalysis, setAiAnalysis] = useState<GeminiAnalysis | null>(null);
+  const [aiAnalysis, setAiAnalysis] = useState<AIAnalysis | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+  const [currentProvider, setCurrentProvider] = useState<AIProvider>('gemini');
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set(['redflags', 'ai'])
   );
   const hasRunAnalysis = useRef(false);
 
-  const runAiAnalysis = useCallback(async (key: string) => {
+  const runAiAnalysis = useCallback(async (provider: AIProvider, key: string) => {
     setAiLoading(true);
     setAiError(null);
+    setCurrentProvider(provider);
 
     try {
-      const analysis = await analyzeWithGemini(key, result);
+      const analysis = await analyzeWithAI(provider, key, result);
       setAiAnalysis(analysis);
     } catch (err) {
       setAiError(err instanceof Error ? err.message : 'AI analysis failed');
@@ -46,10 +46,14 @@ export function Report({ result, onNewScan }: ReportProps) {
     // Auto-run AI analysis if key is available
     if (hasRunAnalysis.current) return;
 
-    const savedKey = localStorage.getItem(GEMINI_KEY_STORAGE);
+    // Get the saved provider preference
+    const savedProvider = (localStorage.getItem(STORAGE_KEYS.provider) || 'gemini') as AIProvider;
+    const storageKey = getStorageKeyForProvider(savedProvider);
+    const savedKey = localStorage.getItem(storageKey);
+
     if (savedKey) {
       hasRunAnalysis.current = true;
-      runAiAnalysis(savedKey);
+      runAiAnalysis(savedProvider, savedKey);
     }
   }, [result.id, runAiAnalysis]);
 
@@ -185,7 +189,7 @@ export function Report({ result, onNewScan }: ReportProps) {
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
               />
             </svg>
-            <span className="text-zinc-400">Analyzing with Gemini...</span>
+            <span className="text-zinc-400">Analyzing with {PROVIDER_INFO[currentProvider].name}...</span>
           </div>
         ) : aiError ? (
           <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
@@ -196,7 +200,7 @@ export function Report({ result, onNewScan }: ReportProps) {
         ) : (
           <div className="p-4 bg-zinc-800/50 border border-zinc-700 rounded-lg">
             <p className="text-zinc-400 text-sm">
-              Add a Gemini API key above to enable AI-powered analysis of scan results.
+              Add an AI API key above to enable AI-powered analysis of scan results.
             </p>
           </div>
         )}
@@ -268,7 +272,7 @@ export function Report({ result, onNewScan }: ReportProps) {
                 <InfoRow
                   label="Free Hosting"
                   value={result.hostingData.isFreeHosting ? 'Yes' : 'No'}
-                  valueClass={result.hostingData.isFreeHosting ? 'text-yellow-400' : 'text-zinc-300'}
+                  valueClass={result.hostingData.isFreeHosting ? 'text-amber-400' : 'text-zinc-300'}
                 />
                 <InfoRow label="CDN" value={result.hostingData.cdnDetected || 'None detected'} />
                 <InfoRow label="IP" value={result.hostingData.ipAddress || 'Unknown'} />
@@ -419,7 +423,7 @@ export function Report({ result, onNewScan }: ReportProps) {
                 <InfoRow
                   label="Archived"
                   value={result.githubData.isArchived ? 'Yes' : 'No'}
-                  valueClass={result.githubData.isArchived ? 'text-yellow-400' : 'text-zinc-300'}
+                  valueClass={result.githubData.isArchived ? 'text-amber-400' : 'text-zinc-300'}
                 />
               </dl>
             </InfoCard>
@@ -487,7 +491,7 @@ function Section({
                   ? 'bg-emerald-500/20 text-emerald-400'
                   : badge === 'avoid'
                   ? 'bg-red-500/20 text-red-400'
-                  : 'bg-yellow-500/20 text-yellow-400'
+                  : 'bg-amber-500/20 text-amber-400'
               }`}
             >
               {badge.toUpperCase()}
@@ -536,7 +540,7 @@ function RedFlagCard({ flag }: { flag: RedFlag }) {
   );
 }
 
-function AiAnalysisDisplay({ analysis }: { analysis: GeminiAnalysis }) {
+function AiAnalysisDisplay({ analysis }: { analysis: AIAnalysis }) {
   // Map verdict to colors
   const verdictColors: Record<string, string> = {
     TRUSTWORTHY: 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400',

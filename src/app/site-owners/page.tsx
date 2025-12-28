@@ -13,7 +13,7 @@ import { BRAND } from '@/lib/design-system';
 
 export const metadata: Metadata = {
   title: `For Site Owners - ${BRAND.name}`,
-  description: 'How to improve your trust score on AIBuilds.net. Tips for site owners to build credibility.',
+  description: `How to improve your trust score on ${BRAND.name}. Tips for site owners to build credibility.`,
 };
 
 export default function SiteOwnersPage() {
@@ -25,6 +25,7 @@ export default function SiteOwnersPage() {
           subtitle="How to Improve Your Trust Score"
           description="Getting flagged? Here's how to fix it."
           breadcrumb={{ label: 'Home', href: '/' }}
+          logo={{ src: '/logo.png', alt: BRAND.name, width: 240, height: 240 }}
         />
 
         <div className="max-w-4xl mx-auto space-y-8">
@@ -51,6 +52,53 @@ export default function SiteOwnersPage() {
                   { text: 'Real testimonials', desc: 'With names and links' },
                 ]}
               />
+            </div>
+          </ContentSection>
+
+          {/* Verified Badge */}
+          <ContentSection title="Earn Your Verified Badge">
+            <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-8">
+              <div className="flex flex-col md:flex-row items-center gap-8">
+                <div className="flex-shrink-0">
+                  <Image
+                    src="/verified-badge.png"
+                    alt="Trust Scan Verified Badge"
+                    width={240}
+                    height={240}
+                    className="rounded-xl"
+                  />
+                </div>
+                <div className="text-center md:text-left">
+                  <h3 className="text-xl font-semibold text-zinc-100 mb-3">
+                    Show Users You&apos;re Verified
+                  </h3>
+                  <p className="text-zinc-400 mb-4">
+                    Sites that pass our trust checks can display the {BRAND.name} Verified badge.
+                    It signals to indie developers that your service has been scanned and verified
+                    as legitimate.
+                  </p>
+                  <ul className="space-y-2 text-sm text-zinc-400">
+                    <li className="flex items-center gap-2">
+                      <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      Low risk score (under 25)
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      All essential pages present
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      Valid SSL and proper hosting
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </ContentSection>
 
@@ -137,53 +185,6 @@ export default function SiteOwnersPage() {
               <ChecklistItem>Reasonable claims that match your infrastructure</ChecklistItem>
               <ChecklistItem>Clear explanation of data handling</ChecklistItem>
             </Checklist>
-          </ContentSection>
-
-          {/* Verified Badge */}
-          <ContentSection title="Earn Your Verified Badge">
-            <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-8">
-              <div className="flex flex-col md:flex-row items-center gap-8">
-                <div className="flex-shrink-0">
-                  <Image
-                    src="/verified-badge.png"
-                    alt="Trust Scan Verified Badge"
-                    width={180}
-                    height={180}
-                    className="rounded-xl"
-                  />
-                </div>
-                <div className="text-center md:text-left">
-                  <h3 className="text-xl font-semibold text-zinc-100 mb-3">
-                    Show Users You&apos;re Verified
-                  </h3>
-                  <p className="text-zinc-400 mb-4">
-                    Sites that pass our trust checks can display the {BRAND.name} Verified badge.
-                    It signals to indie developers that your service has been scanned and verified
-                    as legitimate.
-                  </p>
-                  <ul className="space-y-2 text-sm text-zinc-400">
-                    <li className="flex items-center gap-2">
-                      <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      Low risk score (under 25)
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      All essential pages present
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      Valid SSL and proper hosting
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
           </ContentSection>
 
           {/* Re-scan */}

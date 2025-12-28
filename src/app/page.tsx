@@ -35,8 +35,8 @@ export default function Home() {
               <Image
                 src="/logo.png"
                 alt={BRAND.name}
-                width={160}
-                height={160}
+                width={300}
+                height={300}
                 className="rounded-2xl"
               />
               <h1 className="mt-6 text-5xl md:text-6xl font-bold bg-gradient-to-r from-red-500 via-red-400 to-indigo-500 bg-clip-text text-transparent">
@@ -145,7 +145,7 @@ export default function Home() {
                         </svg>
                       }
                       title="AI Analysis"
-                      description="Optional Gemini-powered deep analysis with BYOK"
+                      description="Optional AI-powered deep analysis (Gemini or Claude) with BYOK"
                     />
                   </div>
 
@@ -155,20 +155,34 @@ export default function Home() {
                       BYOK - Bring Your Own Key
                     </h3>
                     <p className="text-sm text-zinc-400 mb-4 max-w-lg mx-auto">
-                      We don&apos;t charge for AI analysis. Add your free Gemini API key for enhanced scanning.
+                      We don&apos;t charge for AI analysis. Add your free API key for enhanced scanning.
                       Your key stays in your browser - never touches our servers.
                     </p>
-                    <a
-                      href="https://aistudio.google.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
-                    >
-                      Get a free key at aistudio.google.com
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                      </svg>
-                    </a>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                      <a
+                        href="https://aistudio.google.com/app/apikey"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
+                      >
+                        Gemini (Google AI Studio)
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </a>
+                      <span className="text-zinc-600">or</span>
+                      <a
+                        href="https://console.anthropic.com/settings/keys"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
+                      >
+                        Claude (Anthropic Console)
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </a>
+                    </div>
                   </div>
                 </div>
               )}

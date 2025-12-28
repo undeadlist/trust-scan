@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { ReactNode } from 'react';
 
 interface PageHeroProps {
@@ -11,6 +12,12 @@ interface PageHeroProps {
     label: string;
     href: string;
   };
+  logo?: {
+    src: string;
+    alt: string;
+    width: number;
+    height: number;
+  };
   children?: ReactNode;
 }
 
@@ -19,6 +26,7 @@ export function PageHero({
   subtitle,
   description,
   breadcrumb,
+  logo,
   children,
 }: PageHeroProps) {
   return (
@@ -33,6 +41,18 @@ export function PageHero({
           </svg>
           {breadcrumb.label}
         </Link>
+      )}
+
+      {logo && (
+        <div className="flex justify-center mb-6">
+          <Image
+            src={logo.src}
+            alt={logo.alt}
+            width={logo.width}
+            height={logo.height}
+            className="rounded-xl"
+          />
+        </div>
       )}
 
       <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-red-500 via-red-400 to-indigo-500 bg-clip-text text-transparent mb-4">
