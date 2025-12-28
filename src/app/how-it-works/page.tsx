@@ -9,8 +9,9 @@ import {
 import { BRAND, RISK_CONFIG } from '@/lib/design-system';
 
 export const metadata: Metadata = {
-  title: `How It Works - ${BRAND.name}`,
-  description: `Learn how ${BRAND.name} analyzes websites for trust signals and red flags. Understand our methodology.`,
+  title: `How ${BRAND.name} Works - URL Scanning Methodology`,
+  description: `Learn how ${BRAND.name} by AIBuilds analyzes websites for trust signals, scam patterns, and red flags. Free URL scanning methodology explained.`,
+  keywords: ['how trust scan works', 'url scanning', 'website analysis', 'scam detection methodology', 'aibuilds'],
 };
 
 export default function HowItWorksPage() {

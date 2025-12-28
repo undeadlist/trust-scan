@@ -10,8 +10,9 @@ import {
 import { BRAND } from '@/lib/design-system';
 
 export const metadata: Metadata = {
-  title: `FAQ - ${BRAND.name}`,
-  description: `Frequently asked questions about ${BRAND.name}. Learn about our trust scanning methodology.`,
+  title: `FAQ - ${BRAND.name} by AIBuilds`,
+  description: `Frequently asked questions about ${BRAND.name}. How does URL scanning work? Is it free? Learn about our trust scanning methodology by AIBuilds.`,
+  keywords: ['trust scan faq', 'url scanner questions', 'aibuilds help', 'free website checker'],
 };
 
 export default function FAQPage() {

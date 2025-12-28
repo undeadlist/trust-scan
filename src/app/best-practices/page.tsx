@@ -9,8 +9,9 @@ import {
 import { BRAND } from '@/lib/design-system';
 
 export const metadata: Metadata = {
-  title: `Best Practices - ${BRAND.name}`,
-  description: 'Learn how to protect yourself as an indie developer. Best practices for evaluating services before connecting.',
+  title: `Security Best Practices - ${BRAND.name} by AIBuilds`,
+  description: 'Learn how to protect yourself as an indie developer. Best practices for evaluating services, protecting API keys, and avoiding scams. By AIBuilds.',
+  keywords: ['developer security best practices', 'api key security', 'indie developer safety', 'aibuilds', 'avoid scams'],
 };
 
 export default function BestPracticesPage() {

@@ -1,0 +1,28 @@
+{
+  "name": "Trust Scan - Free URL Scanner for AI Builders",
+  "short_name": "Trust Scan",
+  "description": "Check if websites are legit before connecting your API keys. Free scam detection and domain verification.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#09090b",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["security", "utilities", "developer tools"],
+  "lang": "en",
+  "dir": "ltr",
+  "prefer_related_applications": false
+}

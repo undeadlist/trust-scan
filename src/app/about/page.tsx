@@ -9,8 +9,9 @@ import {
 import { BRAND } from '@/lib/design-system';
 
 export const metadata: Metadata = {
-  title: `About - ${BRAND.name}`,
-  description: `Learn about ${BRAND.name}, the free trust scanner for AI builders. Built by ${BRAND.builtBy}.`,
+  title: `About ${BRAND.name} - Free URL Scanner by AIBuilds`,
+  description: `Learn about ${BRAND.name}, the free URL trust scanner for AI builders and indie developers. Built by ${BRAND.builtBy}. Open source security tool.`,
+  keywords: ['about trust scan', 'aibuilds', 'undeadlist', 'url scanner', 'free security tool'],
 };
 
 export default function AboutPage() {
