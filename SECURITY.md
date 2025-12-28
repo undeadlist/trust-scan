@@ -23,17 +23,34 @@ Include the following in your report:
 - **Fix**: We will work on a fix and coordinate disclosure
 - **Credit**: We will credit you in our release notes (unless you prefer anonymity)
 
-### Scope
+## Scope
 
-The following are in scope:
+### In Scope
+
+The following are in scope for security reports:
+
 - The Trust Scan web application
-- API endpoints
-- Third-party integrations
+- API endpoints (`/api/scan`, `/api/analyze`, `/api/config`)
+- Authentication and authorization mechanisms
+- Data handling and storage
+- Third-party integrations we control:
+  - Prisma database operations
+  - Upstash Redis caching
+  - Ollama AI integration
+
+### NOT in Scope
 
 The following are NOT in scope:
-- Third-party services we query (WHOIS, Archive.org, etc.)
+
+- Third-party services we query (not our infrastructure):
+  - WHOIS providers
+  - Archive.org
+  - GitHub API
+  - URLhaus, PhishTank, Spamhaus, AbuseIPDB
 - Social engineering attacks
 - Physical attacks
+- Denial of service attacks
+- Issues in dependencies (report these to the respective maintainers)
 
 ## Supported Versions
 
@@ -46,8 +63,24 @@ If you're self-hosting Trust Scan:
 1. **Keep dependencies updated**: Run `npm audit` regularly
 2. **Secure your environment variables**: Never commit `.env` files
 3. **Use HTTPS**: Always serve the application over HTTPS in production
-4. **Limit access**: Restrict database access to necessary users
-5. **Monitor logs**: Watch for unusual activity
+4. **Limit database access**: Restrict PostgreSQL access to necessary users only
+5. **Monitor logs**: Watch for unusual scanning activity
+6. **Rate limiting**: Ensure Upstash Redis is configured for rate limiting in production
+7. **API keys**: Rotate threat intelligence API keys periodically
+
+## Data Handling
+
+Trust Scan handles the following data:
+
+- **URLs submitted for scanning**: Cached for 24 hours, then eligible for cleanup
+- **Scan results**: Stored in PostgreSQL, no personal user data collected
+- **Threat intelligence cache**: Stored in Redis with TTL (1hr clean, 24hr malicious)
+
+We do not:
+- Collect personal information
+- Track users
+- Share scan data with third parties
+- Store API keys or credentials from scanned sites
 
 ## Responsible Disclosure
 
