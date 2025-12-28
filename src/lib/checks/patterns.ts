@@ -172,6 +172,172 @@ const PATTERN_RULES: PatternRule[] = [
     severity: 'low',
     description: 'Uses unverifiable "verified" labels',
   },
+
+  // === PHISHING INDICATORS ===
+  {
+    pattern: /verify your (account|identity|payment|information)/i,
+    category: 'suspicious_patterns',
+    severity: 'critical',
+    description: 'Phishing verification language',
+  },
+  {
+    pattern: /account (has been |is )?(suspended|limited|restricted|locked)/i,
+    category: 'suspicious_patterns',
+    severity: 'high',
+    description: 'Account threat language',
+  },
+  {
+    pattern: /confirm your (details|identity|credentials)/i,
+    category: 'suspicious_patterns',
+    severity: 'high',
+    description: 'Credential confirmation request',
+  },
+  {
+    pattern: /unusual (activity|login|sign-?in) detected/i,
+    category: 'suspicious_patterns',
+    severity: 'high',
+    description: 'Fake security alert',
+  },
+  {
+    pattern: /update your (payment|billing|card) (info|information|details)/i,
+    category: 'dangerous_permissions',
+    severity: 'high',
+    description: 'Payment update request',
+  },
+  {
+    pattern: /re-?enter your (password|credentials|login)/i,
+    category: 'dangerous_permissions',
+    severity: 'critical',
+    description: 'Credential re-entry request',
+  },
+
+  // === CRYPTO SCAMS ===
+  {
+    pattern: /airdrop|free (tokens?|coins?|crypto|nft)/i,
+    category: 'suspicious_patterns',
+    severity: 'high',
+    description: 'Crypto airdrop language',
+  },
+  {
+    pattern: /connect (your )?wallet|web3 (login|connect)/i,
+    category: 'dangerous_permissions',
+    severity: 'high',
+    description: 'Wallet connection request',
+  },
+  {
+    pattern: /0x[a-fA-F0-9]{40}/,
+    category: 'suspicious_patterns',
+    severity: 'medium',
+    description: 'Ethereum wallet address found',
+  },
+  {
+    pattern: /claim your (tokens?|rewards?|crypto|nft)/i,
+    category: 'suspicious_patterns',
+    severity: 'high',
+    description: 'Crypto claim language',
+  },
+  {
+    pattern: /guaranteed (roi|returns?|profits?|apy)/i,
+    category: 'impossible_claims',
+    severity: 'critical',
+    description: 'Guaranteed crypto returns',
+  },
+  {
+    pattern: /double your (crypto|bitcoin|eth|money)/i,
+    category: 'impossible_claims',
+    severity: 'critical',
+    description: 'Crypto doubling scam',
+  },
+  {
+    pattern: /send.*receive.*double|2x your/i,
+    category: 'impossible_claims',
+    severity: 'critical',
+    description: 'Doubling/multiplier scam',
+  },
+
+  // === FAKE URGENCY ===
+  {
+    pattern: /your (account|order|subscription) will be (closed|cancelled|terminated)/i,
+    category: 'suspicious_patterns',
+    severity: 'high',
+    description: 'Termination threat',
+  },
+  {
+    pattern: /within \d+\s*(hours?|minutes?)|immediate action required/i,
+    category: 'suspicious_patterns',
+    severity: 'medium',
+    description: 'Artificial time pressure',
+  },
+  {
+    pattern: /last (chance|warning|notice)/i,
+    category: 'suspicious_patterns',
+    severity: 'medium',
+    description: 'Last chance pressure',
+  },
+  {
+    pattern: /act (now|immediately|fast) (or|before)/i,
+    category: 'suspicious_patterns',
+    severity: 'medium',
+    description: 'Urgency language',
+  },
+  {
+    pattern: /offer expires|deal ends|sale ends/i,
+    category: 'suspicious_patterns',
+    severity: 'low',
+    description: 'Time-limited offer pressure',
+  },
+
+  // === CLONE/IMPERSONATION ===
+  {
+    pattern: /official (support|helpdesk|help desk)/i,
+    category: 'unverifiable_company',
+    severity: 'medium',
+    description: 'Claims official support status',
+  },
+  {
+    pattern: /(customer|technical) support (portal|center|desk)/i,
+    category: 'suspicious_patterns',
+    severity: 'low',
+    description: 'Support portal language',
+  },
+  {
+    pattern: /authorized (dealer|reseller|partner)/i,
+    category: 'unverifiable_company',
+    severity: 'medium',
+    description: 'Claims authorized status',
+  },
+  {
+    pattern: /official website|official site/i,
+    category: 'suspicious_patterns',
+    severity: 'low',
+    description: 'Claims to be official site',
+  },
+
+  // === DOWNLOAD RISKS ===
+  {
+    pattern: /download (now|free|here).*\.(exe|msi|dmg|apk)/i,
+    category: 'dangerous_permissions',
+    severity: 'critical',
+    description: 'Prompts executable download',
+  },
+  {
+    pattern: /install (this|our) (extension|plugin|add-?on|app)/i,
+    category: 'dangerous_permissions',
+    severity: 'medium',
+    description: 'Prompts software installation',
+  },
+  {
+    pattern: /your (computer|device|system) (is|has been) (infected|compromised)/i,
+    category: 'suspicious_patterns',
+    severity: 'critical',
+    description: 'Fake malware warning',
+  },
+  {
+    pattern: /call (this number|us now|immediately)/i,
+    category: 'suspicious_patterns',
+    severity: 'high',
+    description: 'Tech support scam language',
+  },
 ];
 
 export function analyzePatterns(content: string): PatternsData {

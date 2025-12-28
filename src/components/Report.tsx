@@ -1,9 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { ScanResult, AIAnalysis, RedFlag, AIProvider } from '@/lib/types';
+import { ScanResult, AIAnalysis, RedFlag } from '@/lib/types';
 import { RiskBadge, SeverityBadge } from './RiskBadge';
-import { PROVIDER_INFO } from '@/lib/ai';
 
 interface ReportProps {
   result: ScanResult;
@@ -14,7 +13,6 @@ export function Report({ result, onNewScan }: ReportProps) {
   const [aiAnalysis, setAiAnalysis] = useState<AIAnalysis | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
-  const [currentProvider, setCurrentProvider] = useState<AIProvider>('trustscan');
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set(['redflags', 'ai'])
   );
@@ -24,7 +22,6 @@ export function Report({ result, onNewScan }: ReportProps) {
   const runTrustScanAnalysis = useCallback(async () => {
     setAiLoading(true);
     setAiError(null);
-    setCurrentProvider('trustscan');
 
     try {
       const response = await fetch('/api/analyze', {
@@ -206,7 +203,7 @@ export function Report({ result, onNewScan }: ReportProps) {
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
               />
             </svg>
-            <span className="text-zinc-400">Analyzing with {PROVIDER_INFO[currentProvider].name}...</span>
+            <span className="text-zinc-400">Analyzing with Trust Scan LLM...</span>
           </div>
         ) : aiError ? (
           <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">

@@ -82,24 +82,14 @@ export default function AboutPage() {
             </div>
           </ContentSection>
 
-          {/* BYOK Section */}
-          <ContentSection title="BYOK - Bring Your Own Key">
-            <CalloutBox type="tip" title="Free AI Analysis">
-              <p className="mb-2">
-                We don&apos;t charge for AI analysis. Instead, you can use your own free Gemini API key.
-                It never touches our servers &mdash; everything stays in your browser.
+          {/* AI Analysis Section */}
+          <ContentSection title="AI-Powered Analysis">
+            <CalloutBox type="tip" title="Trust Scan LLM">
+              <p>
+                Every scan includes AI-powered analysis using our Trust Scan LLM. No API keys required &mdash;
+                the AI evaluates scan results and provides human-readable insights about potential concerns.
+                Free, automatic, and always included.
               </p>
-              <a
-                href="https://aistudio.google.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-indigo-400 hover:text-indigo-300 transition-colors inline-flex items-center gap-1"
-              >
-                Get a free key at aistudio.google.com
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-              </a>
             </CalloutBox>
           </ContentSection>
 

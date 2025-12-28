@@ -1,40 +1,45 @@
-# VibeCheck 🛡️
+# Trust Scan
 
 **Is this app legit? Check before you connect.**
 
-VibeCheck is a URL trust scanner for indie developers. Scan any URL to detect red flags, verify domains, and make informed decisions before connecting your accounts or data.
+Trust Scan is a free URL trust scanner for indie developers. Scan any URL to detect red flags, verify domains, and make informed decisions before connecting your accounts or data.
+
+Built by [UndeadList.com](https://undeadlist.com)
 
 ## Features
 
-### Deterministic Checks
+### Security Checks
 - **WHOIS Analysis** - Domain age, registration details, privacy protection
 - **SSL Certificate** - Validity, issuer, expiration
 - **Hosting Detection** - Provider identification, free hosting detection
 - **HTML Scraping** - Contact pages, privacy policy, terms of service
-- **Pattern Matching** - Red flag detection for common scam patterns
+- **Pattern Matching** - 40+ patterns for phishing, scams, and red flags
 - **GitHub Integration** - Repository analysis, activity metrics
 - **Archive.org** - Historical snapshots, domain age verification
+- **Threat Intelligence** - URLhaus malware/phishing database lookups
 
 ### Red Flag Detection
+- Phishing indicators (account threats, credential requests)
+- Crypto scam patterns (airdrops, wallet draining, guaranteed returns)
+- Fake urgency tactics (time pressure, termination threats)
 - Free hosting + enterprise claims mismatch
 - Young domains with funding claims
 - Dangerous permission requests
-- Unverifiable company claims
-- Impossible technical claims
-- Missing pricing/documentation
-- Generic testimonials
+- Clone/impersonation indicators
+- Malware download prompts
 
-### AI Analysis (BYOK)
-- Bring Your Own Key - Gemini API integration
-- Client-side analysis for privacy
-- Comprehensive trust assessment
+### AI Analysis
+- **Trust Scan LLM** - Server-side AI analysis (no API keys required)
+- Contextual claim verification
+- Holistic risk assessment
+- Actionable recommendations
 
 ## Quick Start
 
 ### Prerequisites
 - Node.js 20.19+ or 22.12+
 - PostgreSQL database
-- (Optional) Gemini API key for AI analysis
+- (Optional) Ollama server with Trust Scan LLM for AI analysis
 
 ### Installation
 
@@ -65,58 +70,83 @@ API_NINJAS_KEY=""
 
 # Optional - Higher GitHub API rate limits
 GITHUB_TOKEN=""
+
+# Optional - Trust Scan LLM (Ollama server for AI analysis)
+OLLAMA_SERVER_URL=""
+OLLAMA_MODEL="ikiru/Dolphin-Mistral-24B-Venice-Edition:latest"
+
+# Optional - Upstash Redis for threat data caching
+UPSTASH_REDIS_REST_URL=""
+UPSTASH_REDIS_REST_TOKEN=""
 ```
 
 ## Tech Stack
 
-- **Framework**: Next.js 14 (App Router)
+- **Framework**: Next.js 16 (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
 - **Database**: PostgreSQL + Prisma
-- **AI**: Google Gemini (client-side BYOK)
+- **AI**: Ollama (Trust Scan LLM)
+- **Threat Intel**: URLhaus (abuse.ch)
+- **Caching**: Upstash Redis
 
 ## Project Structure
 
 ```
 vibecheck/
 ├── prisma/
-│   └── schema.prisma        # Database schema
+│   └── schema.prisma          # Database schema
 ├── src/
 │   ├── app/
-│   │   ├── api/scan/route.ts  # Scan API endpoint
-│   │   ├── page.tsx           # Main UI
-│   │   ├── layout.tsx         # App layout
-│   │   └── globals.css        # Global styles
+│   │   ├── api/
+│   │   │   ├── scan/route.ts    # Scan API endpoint
+│   │   │   ├── analyze/route.ts # AI analysis endpoint
+│   │   │   └── config/route.ts  # Config endpoint
+│   │   ├── about/page.tsx
+│   │   ├── faq/page.tsx
+│   │   ├── how-it-works/page.tsx
+│   │   ├── best-practices/page.tsx
+│   │   ├── site-owners/page.tsx
+│   │   ├── privacy/page.tsx
+│   │   ├── terms/page.tsx
+│   │   ├── page.tsx             # Home/Scanner
+│   │   └── layout.tsx
 │   ├── components/
-│   │   ├── Scanner.tsx        # URL input form
-│   │   ├── Report.tsx         # Scan results display
-│   │   ├── KeyInput.tsx       # Gemini API key input
-│   │   └── RiskBadge.tsx      # Risk level indicators
+│   │   ├── Scanner.tsx
+│   │   ├── Report.tsx
+│   │   ├── AIKeySection.tsx
+│   │   ├── RiskBadge.tsx
+│   │   ├── layout/
+│   │   └── content/
 │   └── lib/
-│       ├── checks/            # Individual check modules
+│       ├── checks/
 │       │   ├── whois.ts
 │       │   ├── ssl.ts
 │       │   ├── hosting.ts
 │       │   ├── scraper.ts
-│       │   ├── patterns.ts
+│       │   ├── patterns.ts      # 40+ detection patterns
 │       │   ├── github.ts
-│       │   └── archive.ts
-│       ├── scoring.ts         # Risk calculation
-│       ├── gemini.ts          # AI integration
-│       ├── types.ts           # TypeScript types
-│       └── db.ts              # Prisma client
+│       │   ├── archive.ts
+│       │   ├── urlhaus.ts       # Threat intelligence
+│       │   └── threat-cache.ts  # Redis caching
+│       ├── scoring.ts
+│       ├── ai.ts
+│       ├── trustscan.ts         # Ollama integration
+│       ├── types.ts
+│       └── db.ts
 ```
 
 ## Usage
 
 1. Enter a URL to scan
 2. View the risk score and red flags
-3. (Optional) Add your Gemini API key for AI analysis
-4. Review detailed findings before connecting
+3. Review AI-powered analysis (automatic)
+4. Check detailed findings before connecting
 
 ## Caching
 
-Results are cached in the database for 24 hours to reduce API calls and improve response times.
+- **Scan results**: Cached in PostgreSQL for 24 hours
+- **Threat data**: Cached in Upstash Redis (1hr clean, 24hr malicious)
 
 ## Development
 
@@ -139,7 +169,5 @@ npx tsc --noEmit
 MIT
 
 ---
-
-**Built by [UndeadList.com](https://undeadlist.com)**
 
 *Results are informational only. Always do your own research.*

@@ -86,6 +86,15 @@ export interface ArchiveData {
   error?: string;
 }
 
+export interface ThreatData {
+  isMalicious: boolean;
+  threat: string | null;
+  tags: string[];
+  source: 'urlhaus' | 'virustotal' | 'cache';
+  checkedAt: string;
+  error?: string;
+}
+
 export type RedFlagCategory =
   | 'free_hosting_enterprise'
   | 'young_domain_funding'
@@ -118,6 +127,7 @@ export interface ScanResult {
   patternsData: PatternsData | null;
   githubData: GithubData | null;
   archiveData: ArchiveData | null;
+  threatData: ThreatData | null;
   redFlags: RedFlag[];
   createdAt: string;
   expiresAt: string;
@@ -126,9 +136,6 @@ export interface ScanResult {
   scanNotes: string[];
   isKnownEntity: boolean;
 }
-
-// AI Provider types
-export type AIProvider = 'trustscan' | 'gemini';
 
 export interface AIAnalysis {
   summary: string;

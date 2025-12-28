@@ -1,82 +1,54 @@
-// Shared AI Provider Infrastructure
-import { ScanResult, AIAnalysis, AIProvider } from './types';
-import { analyzeWithGemini, isValidGeminiKey } from './gemini';
-
-// Provider display names and URLs
-export const PROVIDER_INFO: Record<AIProvider, { name: string; keyUrl: string; keyUrlLabel: string }> = {
-  trustscan: {
-    name: 'Trust Scan AI',
-    keyUrl: '',
-    keyUrlLabel: 'powered by UndeadList',
-  },
-  gemini: {
-    name: 'Gemini',
-    keyUrl: 'https://aistudio.google.com/app/apikey',
-    keyUrlLabel: 'Google AI Studio',
-  },
-};
-
-// Storage keys for localStorage
-export const STORAGE_KEYS = {
-  provider: 'vibecheck_ai_provider',
-  geminiKey: 'vibecheck_gemini_key',
-} as const;
-
-export function getStorageKeyForProvider(provider: AIProvider): string {
-  // Only Gemini uses client-side key storage
-  return STORAGE_KEYS.geminiKey;
-}
+// Trust Scan AI Analysis Infrastructure
+import { ScanResult } from './types';
 
 // Check if Trust Scan LLM (Ollama) is available
 export function hasTrustScanServer(): boolean {
   return !!process.env.OLLAMA_SERVER_URL;
 }
 
-// Check if server has a configured key for provider
-export function hasServerKey(provider: AIProvider): boolean {
-  if (provider === 'trustscan') {
-    return !!process.env.OLLAMA_SERVER_URL;
+// Site type detection for context-aware analysis
+function detectSiteType(scanResult: ScanResult): string {
+  const { scraperData, patternsData } = scanResult;
+
+  // Check for developer tool indicators
+  if (scraperData?.permissionsRequested?.some(p =>
+    p.toLowerCase().includes('api') ||
+    p.toLowerCase().includes('key') ||
+    p.toLowerCase().includes('token')
+  )) {
+    return 'DEVELOPER_TOOL - This site requests API keys/tokens. Apply extra scrutiny to credential requests, but note that legitimate dev tools do need API keys.';
   }
-  return !!process.env.GEMINI_API_KEY;
+
+  // Check for crypto/web3 indicators
+  if (patternsData?.matches?.some(m =>
+    m.category === 'dangerous_permissions' && m.matched.toLowerCase().includes('wallet')
+  ) || patternsData?.matches?.some(m =>
+    m.matched.toLowerCase().includes('airdrop') ||
+    m.matched.toLowerCase().includes('crypto') ||
+    m.matched.toLowerCase().includes('web3')
+  )) {
+    return 'CRYPTO_SERVICE - This site involves cryptocurrency/Web3. Apply higher scrutiny for common crypto scam patterns (airdrops, guaranteed returns, wallet drainers).';
+  }
+
+  // Check for commercial service
+  if (scraperData?.hasPricing) {
+    return 'COMMERCIAL_SERVICE - This is a paid service. Verify business legitimacy indicators (contact info, policies, company registration).';
+  }
+
+  // Check for support/helpdesk clone patterns
+  if (patternsData?.matches?.some(m =>
+    m.description.includes('support') || m.description.includes('official')
+  )) {
+    return 'POTENTIAL_CLONE - Site may be impersonating an official service. Verify it is the real official site and not a phishing clone.';
+  }
+
+  return 'GENERAL_WEBSITE - Standard website evaluation. Apply balanced analysis.';
 }
 
-// Get API key for provider (server key takes priority for Gemini)
-export function getApiKey(provider: AIProvider, clientKey?: string | null): string | null {
-  if (provider === 'trustscan') {
-    // Trust Scan doesn't need client key - it's server-side only
-    return null;
-  }
-  if (process.env.GEMINI_API_KEY) {
-    return process.env.GEMINI_API_KEY;
-  }
-  return clientKey || null;
-}
-
-// Validate API key format for provider
-export function isValidApiKey(provider: AIProvider, key: string): boolean {
-  if (provider === 'trustscan') {
-    // Trust Scan doesn't use client keys
-    return false;
-  }
-  return isValidGeminiKey(key);
-}
-
-// Main analysis function - routes to appropriate provider
-// Note: Trust Scan should be called via /api/analyze, not this function
-export async function analyzeWithAI(
-  provider: AIProvider,
-  apiKey: string,
-  scanResult: ScanResult
-): Promise<AIAnalysis> {
-  if (provider === 'trustscan') {
-    throw new Error('Trust Scan AI must be called via /api/analyze endpoint');
-  }
-  return analyzeWithGemini(apiKey, scanResult);
-}
-
-// Shared prompt builder for all providers
+// Shared prompt builder for Trust Scan LLM
 export function buildAnalysisPrompt(scanResult: ScanResult): string {
   const domainAgeDays = scanResult.whoisData?.domainAge ?? null;
+  const siteType = detectSiteType(scanResult);
 
   return `You are a scam detector for indie developers evaluating web apps and services.
 
@@ -144,6 +116,28 @@ ${scanResult.scraperData?.scraperLimited ? '⚠️ SCRAPER WAS LIMITED - the sit
 - Solo founder - common in indie space
 - Payment mentions (Apple Pay, Stripe) - normal commerce
 - No GitHub repo - not every company is open source
+
+## SITE TYPE CONTEXT
+${siteType}
+
+## ENHANCED FALSE POSITIVE RULES
+- "verify your email" for signup flows is NORMAL, not phishing
+- Developer tools legitimately request API keys - evaluate the CONTEXT of the request
+- Payment processors mentioned as OPTIONS (Apple Pay, Stripe checkout) are fine
+- Only flag claims when the site MAKES the claim, not when it just MENTIONS a company
+- Tech support pages for real products are legitimate - only flag if suspicious
+
+## THREAT INTELLIGENCE
+${scanResult.threatData?.isMalicious
+  ? `⚠️ CRITICAL: This URL was found in threat databases! Threat: ${scanResult.threatData.threat || 'malware'}${scanResult.threatData.tags?.length ? `. Tags: ${scanResult.threatData.tags.join(', ')}` : ''}`
+  : 'No matches found in URLhaus threat database (good sign)'}
+
+## SCORING GUIDANCE
+- Base risk score from automated scan: ${scanResult.riskScore}/100 (${scanResult.riskLevel})
+- If automated scan found CRITICAL issues: These are usually accurate, trust them
+- If scan found nothing but something feels wrong: Explain your reasoning clearly
+- New site + no red flags + reasonable claims = likely legitimate indie project
+- Trust the pattern detection for obvious scam language
 
 ## SCAN DATA
 URL: ${scanResult.url}

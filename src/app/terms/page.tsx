@@ -40,8 +40,7 @@ export default function TermsPage() {
               <p>
                 {BRAND.name} analyzes websites to provide trust indicators and potential red flags.
                 We check things like domain age, SSL certificates, hosting providers, content patterns,
-                and more. If you enable AI analysis (using your own API key), we also provide
-                AI-generated insights.
+                and more. Our Trust Scan LLM provides AI-generated insights automatically with every scan.
               </p>
               <CalloutBox type="warning" title="Important">
                 <p>
@@ -103,26 +102,7 @@ export default function TermsPage() {
                 <li>Not abuse the service with excessive automated requests</li>
                 <li>Not use scan results to harass or defame legitimate businesses</li>
                 <li>Do your own research before making important decisions</li>
-                <li>Keep your own API keys (if using BYOK) secure</li>
               </ul>
-            </div>
-          </ContentSection>
-
-          <ContentSection title="BYOK (Bring Your Own Key)">
-            <div className="space-y-4 text-zinc-400">
-              <p>
-                If you use your own API keys for AI analysis (Gemini or Claude), you&apos;re responsible for:
-              </p>
-              <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>Keeping your API keys secure</li>
-                <li>Any usage charges from Google or Anthropic</li>
-                <li>Complying with their terms of service</li>
-              </ul>
-              <p className="mt-4">
-                Your keys are stored only in your browser&apos;s localStorage. We never see or store them
-                on our servers. If you clear your browser data or use a different device, you&apos;ll need
-                to enter your key again.
-              </p>
             </div>
           </ContentSection>
 
@@ -154,10 +134,6 @@ export default function TermsPage() {
                 Our tool queries various third-party services (WHOIS providers, Archive.org, GitHub, etc.).
                 We&apos;re not responsible for the accuracy or availability of data from these services.
                 Each has their own terms and limitations.
-              </p>
-              <p>
-                If you use BYOK AI analysis, your interaction with Google (Gemini) or Anthropic (Claude)
-                is governed by their respective terms of service and privacy policies.
               </p>
             </div>
           </ContentSection>

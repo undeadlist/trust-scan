@@ -15,7 +15,7 @@ interface OllamaGenerateResponse {
 export function getOllamaConfig() {
   return {
     serverUrl: process.env.OLLAMA_SERVER_URL || '',
-    model: process.env.OLLAMA_MODEL || 'deepseek-coder-v2:16b',
+    model: process.env.OLLAMA_MODEL || 'dolphin-mistral:latest',
   };
 }
 
@@ -67,11 +67,11 @@ export async function analyzeWithOllama(scanResult: ScanResult): Promise<AIAnaly
       },
       body: JSON.stringify({
         model: config.model,
-        prompt: prompt + '\n\nRespond with JSON only, no markdown formatting.',
+        prompt: prompt + '\n\nRespond with valid JSON only. No markdown, no explanation, just the JSON object.',
         stream: false,
         options: {
-          temperature: 0.3,
-          num_predict: 1024,
+          temperature: 0.4,
+          num_predict: 2048,
         },
       }),
       signal: controller.signal,

@@ -41,7 +41,7 @@ export default function PrivacyPage() {
               </div>
               <div className="flex items-start gap-3">
                 <span className="text-emerald-400 mt-1">&#10003;</span>
-                <p className="text-zinc-300">Your API keys (BYOK) stay in your browser. We never see them.</p>
+                <p className="text-zinc-300">No API keys required from you. AI analysis runs server-side.</p>
               </div>
               <div className="flex items-start gap-3">
                 <span className="text-emerald-400 mt-1">&#10003;</span>
@@ -75,11 +75,11 @@ export default function PrivacyPage() {
               </div>
 
               <div>
-                <h4 className="text-zinc-200 font-medium mb-2">Your API Keys (BYOK)</h4>
+                <h4 className="text-zinc-200 font-medium mb-2">AI Analysis</h4>
                 <p>
-                  If you use our BYOK (Bring Your Own Key) feature for AI analysis, your API key is stored
-                  only in your browser&apos;s localStorage. It never touches our servers. The AI requests go
-                  directly from your browser to Google (Gemini) or Anthropic (Claude).
+                  AI analysis is performed server-side using our Trust Scan LLM. No API keys are required
+                  from you. The AI evaluates scan results to provide insights, but doesn&apos;t store any
+                  additional personal data.
                 </p>
               </div>
 
@@ -110,7 +110,7 @@ export default function PrivacyPage() {
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-red-400 mt-1">&#10007;</span>
-                <span>We don&apos;t store your AI API keys on our servers</span>
+                <span>We don&apos;t require any API keys from you</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="text-red-400 mt-1">&#10007;</span>
@@ -131,8 +131,8 @@ export default function PrivacyPage() {
                 <li><strong className="text-zinc-300">The target website itself</strong> - to analyze its content</li>
               </ul>
               <p>
-                If you use BYOK AI analysis, your browser communicates directly with Google (Gemini)
-                or Anthropic (Claude) using your own API key. Their privacy policies apply to that interaction.
+                AI analysis is performed server-side using our Trust Scan LLM and doesn&apos;t require
+                any external API calls from your browser.
               </p>
             </div>
           </ContentSection>
@@ -141,10 +141,6 @@ export default function PrivacyPage() {
             <div className="space-y-4 text-zinc-400">
               <p>
                 <strong className="text-zinc-300">Scan results:</strong> Cached for 24 hours, then eligible for deletion.
-              </p>
-              <p>
-                <strong className="text-zinc-300">Your API keys:</strong> Stored only in your browser. Clear your
-                browser&apos;s localStorage anytime to remove them.
               </p>
               <p>
                 <strong className="text-zinc-300">Server logs:</strong> Retained per our hosting provider&apos;s

@@ -6,6 +6,7 @@ import {
   PatternsData,
   GithubData,
   ArchiveData,
+  ThreatData,
   RedFlag,
 } from './types';
 
@@ -23,6 +24,7 @@ interface CheckResults {
   patternsData: PatternsData | null;
   githubData: GithubData | null;
   archiveData: ArchiveData | null;
+  threatData: ThreatData | null;
 }
 
 // Severity weights for scoring
@@ -228,6 +230,21 @@ export function calculateRiskScore(results: CheckResults): ScoringResult {
       // This is expected for new indie projects
     }
     // Removed: Limited archive history check - not meaningful for new projects
+  }
+
+  // === Threat Intelligence Analysis ===
+  if (results.threatData && !results.threatData.error) {
+    if (results.threatData.isMalicious) {
+      redFlags.push({
+        category: 'suspicious_patterns',
+        severity: 'critical',
+        title: 'Known Malicious URL',
+        description: `This URL has been flagged as malicious by threat intelligence databases.`,
+        evidence: results.threatData.threat
+          ? `Threat type: ${results.threatData.threat}${results.threatData.tags.length > 0 ? `, Tags: ${results.threatData.tags.join(', ')}` : ''}`
+          : 'Flagged by URLhaus threat database',
+      });
+    }
   }
 
   // === Calculate Final Score ===

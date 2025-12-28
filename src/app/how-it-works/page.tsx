@@ -60,9 +60,9 @@ export default function HowItWorksPage() {
           </ContentSection>
 
           {/* AI Analysis */}
-          <ContentSection title="AI Analysis (Optional, BYOK)">
+          <ContentSection title="AI Analysis">
             <p className="text-zinc-400 mb-4">
-              Add your free Gemini API key for enhanced analysis:
+              After automated checks, our Trust Scan LLM provides intelligent analysis:
             </p>
             <ul className="space-y-2 text-zinc-400 mb-6">
               <li className="flex items-start gap-2">
@@ -90,15 +90,15 @@ export default function HowItWorksPage() {
                 Actionable recommendations
               </li>
             </ul>
-            <CalloutBox type="info" title="Your Key, Your Privacy">
-              Your API key stays in your browser. It never touches our servers.
+            <CalloutBox type="info" title="Free & Automatic">
+              AI analysis is included with every scan. No API keys required.
             </CalloutBox>
           </ContentSection>
 
           {/* What We Don't Do */}
           <ContentSection title="What We DON'T Do">
             <div className="grid sm:grid-cols-2 gap-4">
-              <DontItem text="Store your API keys (BYOK stays in your browser)" />
+              <DontItem text="Require any API keys from you" />
               <DontItem text="Guarantee a site is safe (we flag concerns)" />
               <DontItem text="Scan sites without permission (you submit the URL)" />
               <DontItem text="Access any private data" />

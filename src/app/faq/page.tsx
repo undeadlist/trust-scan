@@ -30,35 +30,17 @@ export default function FAQPage() {
             <Accordion>
               <AccordionItem title="Is this free?" defaultOpen>
                 <p>
-                  Yes, completely free. The basic scan runs without any cost. For AI-powered
-                  analysis, you can use your own free Gemini API key (BYOK - Bring Your Own Key).
+                  Yes, completely free. Both the automated security scan and AI-powered analysis
+                  are included at no cost. No API keys required.
                 </p>
               </AccordionItem>
 
-              <AccordionItem title="Do you store my API key?">
+              <AccordionItem title="How does the AI analysis work?">
                 <p>
-                  No. Your Gemini API key is stored only in your browser&apos;s local storage.
-                  It never touches our servers. When you run an AI analysis, the request goes
-                  directly from your browser to Google&apos;s Gemini API.
-                </p>
-              </AccordionItem>
-
-              <AccordionItem title="Why do I need my own Gemini key?">
-                <p className="mb-2">
-                  We wanted to offer AI analysis without charging users or running a SaaS business.
-                  By using BYOK (Bring Your Own Key), you get free AI analysis using your own
-                  quota, and we don&apos;t have to manage API costs or subscriptions.
-                </p>
-                <p>
-                  Get a free key at{' '}
-                  <a
-                    href="https://aistudio.google.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-indigo-400 hover:text-indigo-300 transition-colors"
-                  >
-                    aistudio.google.com
-                  </a>
+                  {BRAND.name} uses our Trust Scan LLM for intelligent analysis. After the
+                  automated checks complete, the AI evaluates the overall risk profile and
+                  provides human-readable insights about potential concerns. Everything runs
+                  server-side - no configuration needed on your part.
                 </p>
               </AccordionItem>
 

@@ -27,6 +27,7 @@ model ScanResult {
   patternsData Json?
   githubData  Json?
   archiveData Json?
+  threatData  Json?
 
   // Red flags detected
   redFlags    Json     // Array of red flag objects

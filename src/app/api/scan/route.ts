@@ -8,6 +8,7 @@ import {
   checkPatterns,
   checkGithub,
   checkArchive,
+  getCachedThreatData,
 } from '@/lib/checks';
 import { calculateRiskScore } from '@/lib/scoring';
 import { ScanResponse, ScanResult } from '@/lib/types';
@@ -88,6 +89,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ScanRespo
         patternsData: null,
         githubData: null,
         archiveData: null,
+        threatData: null,
         redFlags: [],
         createdAt: now.toISOString(),
         expiresAt: expiresAt.toISOString(),
@@ -129,6 +131,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ScanRespo
           patternsData: cached.patternsData as ScanResult['patternsData'],
           githubData: cached.githubData as ScanResult['githubData'],
           archiveData: cached.archiveData as ScanResult['archiveData'],
+          threatData: (cached as { threatData?: ScanResult['threatData'] }).threatData ?? null,
           redFlags: cached.redFlags as unknown as ScanResult['redFlags'],
           createdAt: cached.createdAt.toISOString(),
           expiresAt: cached.expiresAt.toISOString(),
@@ -150,7 +153,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ScanRespo
     }
 
     // Perform all checks in parallel with timeout
-    const [whoisResult, sslResult, hostingResult, scraperResult, archiveResult] =
+    const [whoisResult, sslResult, hostingResult, scraperResult, archiveResult, threatResult] =
       await withTimeout(
         Promise.all([
           checkWhois(domain),
@@ -158,6 +161,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ScanRespo
           checkHosting(domain),
           scrapeWebsite(normalizedUrl),
           checkArchive(normalizedUrl),
+          getCachedThreatData(normalizedUrl),
         ]),
         SCAN_TIMEOUT_MS,
         'Scan timed out - some checks may have failed'
@@ -193,6 +197,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ScanRespo
       patternsData: patternsResult,
       githubData: githubResult,
       archiveData: archiveResult,
+      threatData: threatResult,
     });
 
     const now = new Date();
@@ -219,6 +224,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ScanRespo
           patternsData: patternsResult as object,
           githubData: githubResult as object,
           archiveData: archiveResult as object,
+          threatData: threatResult as object,
           redFlags: redFlags as object[],
           expiresAt,
         },
@@ -239,6 +245,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ScanRespo
         patternsData: patternsResult,
         githubData: githubResult,
         archiveData: archiveResult,
+        threatData: threatResult,
         redFlags,
         createdAt: now,
         expiresAt,
@@ -272,6 +279,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ScanRespo
       patternsData: patternsResult,
       githubData: githubResult,
       archiveData: archiveResult,
+      threatData: threatResult,
       redFlags,
       createdAt: now.toISOString(),
       expiresAt: expiresAt.toISOString(),
