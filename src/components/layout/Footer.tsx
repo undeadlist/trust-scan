@@ -10,7 +10,7 @@ export function Footer() {
   return (
     <footer className="relative z-10 mt-16 border-t border-zinc-800/50">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid md:grid-cols-4 gap-8">
+        <div className="grid md:grid-cols-5 gap-8">
           {/* Brand Column */}
           <div className="md:col-span-2">
             <div className="flex items-center gap-3 mb-4">
@@ -47,15 +47,15 @@ export function Footer() {
                 <span className="text-sm font-medium">{BRAND.builtBy}</span>
               </a>
             </div>
-            <div className="flex items-center gap-2 mt-4">
+            <div className="flex items-center gap-3 mt-4">
               <Image
                 src="/verified-badge.png"
                 alt="Trust Scan Verified"
-                width={32}
-                height={32}
-                className="rounded"
+                width={64}
+                height={64}
+                className="rounded-lg"
               />
-              <span className="text-xs text-emerald-400">Trust Scan Verified</span>
+              <span className="text-sm font-medium text-emerald-400">Trust Scan Verified</span>
             </div>
           </div>
 
@@ -119,6 +119,29 @@ export function Footer() {
               </li>
             </ul>
           </div>
+
+          {/* Legal */}
+          <div>
+            <h3 className="text-sm font-semibold text-zinc-300 mb-4">Legal</h3>
+            <ul className="space-y-2">
+              <li>
+                <Link
+                  href="/privacy"
+                  className="text-sm text-zinc-500 hover:text-zinc-300 transition-colors"
+                >
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/terms"
+                  className="text-sm text-zinc-500 hover:text-zinc-300 transition-colors"
+                >
+                  Terms of Service
+                </Link>
+              </li>
+            </ul>
+          </div>
         </div>
 
         {/* Bottom Bar */}
@@ -127,8 +150,16 @@ export function Footer() {
             <p className="text-xs text-zinc-600">
               &copy; {currentYear} {BRAND.name}. Free and open source.
             </p>
-            <p className="text-xs text-zinc-700 text-center md:text-right max-w-md">
-              Results are informational only. Always do your own research before connecting to any service.
+            <p className="text-xs text-zinc-600 text-center md:text-right max-w-lg">
+              Results are informational only and provided without warranty. Always do your own research
+              before connecting to any service. See our{' '}
+              <Link href="/terms" className="text-zinc-500 hover:text-zinc-400 underline">
+                Terms
+              </Link>{' '}
+              and{' '}
+              <Link href="/privacy" className="text-zinc-500 hover:text-zinc-400 underline">
+                Privacy Policy
+              </Link>.
             </p>
           </div>
         </div>

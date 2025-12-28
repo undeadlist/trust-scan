@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useSyncExternalStore, useRef, useEffect, useCallback } from 'react';
+import { useState, useSyncExternalStore, useEffect, useCallback, useRef } from 'react';
 import { AIProvider } from '@/lib/types';
 import { isValidApiKey, getStorageKeyForProvider, PROVIDER_INFO } from '@/lib/ai';
 
@@ -38,21 +38,32 @@ export function KeyInput({ provider, onKeyChange, serverKeyAvailable = false }: 
   );
 
   // Track if we're editing (typing a new key) vs displaying stored key
-  const [editingKey, setEditingKey] = useState<string | null>(null);
+  // Include provider in state so we can detect when it changes
+  const [editState, setEditState] = useState<{ provider: AIProvider; editingKey: string | null }>({
+    provider,
+    editingKey: null,
+  });
   const [showKey, setShowKey] = useState(false);
 
-  // Use ref to track if we've notified parent of stored key
+  // Track if we've notified parent - use ref since we only read/write in effects
   const notifiedRef = useRef(false);
+
+  // Derive current editing key, resetting if provider changed
+  const editingKey = editState.provider === provider ? editState.editingKey : null;
+
+  // Update state if provider changed (this is a derived state pattern)
+  if (editState.provider !== provider) {
+    setEditState({ provider, editingKey: null });
+  }
+
+  // Reset notified ref when provider changes
+  useEffect(() => {
+    notifiedRef.current = false;
+  }, [provider]);
 
   // The displayed key is either the editing key or the stored key
   const displayKey = editingKey ?? storedKey ?? '';
   const isSaved = storedKey !== null && editingKey === null;
-
-  // Reset editing state when provider changes
-  useEffect(() => {
-    setEditingKey(null);
-    notifiedRef.current = false;
-  }, [provider]);
 
   // Notify parent of stored key on mount (only once per provider)
   useEffect(() => {
@@ -67,7 +78,8 @@ export function KeyInput({ provider, onKeyChange, serverKeyAvailable = false }: 
     const trimmedKey = displayKey.trim();
     if (trimmedKey && isValidApiKey(provider, trimmedKey)) {
       localStorage.setItem(storageKey, trimmedKey);
-      setEditingKey(null);
+      setEditState({ provider, editingKey: null });
+      notifiedRef.current = true;
       onKeyChange(trimmedKey);
       window.dispatchEvent(new StorageEvent('storage', { key: storageKey }));
     }
@@ -75,14 +87,14 @@ export function KeyInput({ provider, onKeyChange, serverKeyAvailable = false }: 
 
   const handleClear = () => {
     localStorage.removeItem(storageKey);
-    setEditingKey(null);
+    setEditState({ provider, editingKey: null });
     notifiedRef.current = false;
     onKeyChange(null);
     window.dispatchEvent(new StorageEvent('storage', { key: storageKey }));
   };
 
   const handleChange = (value: string) => {
-    setEditingKey(value);
+    setEditState(prev => ({ ...prev, editingKey: value }));
   };
 
   const isValid = displayKey.trim() ? isValidApiKey(provider, displayKey.trim()) : true;

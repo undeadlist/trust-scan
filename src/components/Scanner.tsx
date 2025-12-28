@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback, useEffect } from 'react';
-import { ScanResult, ScanResponse, AIProvider } from '@/lib/types';
+import { ScanResult, ScanResponse } from '@/lib/types';
 import { AIKeySection } from './AIKeySection';
 
 interface ScannerProps {
@@ -71,7 +71,7 @@ export function Scanner({ onScanComplete, onScanStart, isScanning }: ScannerProp
     }
   };
 
-  const handleKeyChange = useCallback((provider: AIProvider, key: string | null) => {
+  const handleKeyChange = useCallback((_provider: 'gemini', _key: string | null) => {
     // Key changes are handled by AIKeySection component
     // This callback can be used for logging or additional logic
   }, []);
