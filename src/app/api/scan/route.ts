@@ -71,28 +71,37 @@ function normalizeUrl(url: string): string {
 
 export async function POST(request: NextRequest): Promise<NextResponse<ScanResponse>> {
   try {
-    // Rate limiting (if Redis is configured)
+    // Rate limiting (if Redis is configured) - with timeout and fallback
     if (ratelimit) {
       const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
                  request.headers.get('x-real-ip') ??
                  'anonymous';
-      const { success, limit, reset, remaining } = await ratelimit.limit(ip);
-
-      if (!success) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'Rate limit exceeded. Please try again later.'
-          },
-          {
-            status: 429,
-            headers: {
-              'X-RateLimit-Limit': limit.toString(),
-              'X-RateLimit-Remaining': remaining.toString(),
-              'X-RateLimit-Reset': reset.toString(),
-            },
-          }
+      try {
+        const { success, limit, reset, remaining } = await withTimeout(
+          ratelimit.limit(ip),
+          5000,
+          'Rate limit check timed out'
         );
+
+        if (!success) {
+          return NextResponse.json(
+            {
+              success: false,
+              error: 'Rate limit exceeded. Please try again later.'
+            },
+            {
+              status: 429,
+              headers: {
+                'X-RateLimit-Limit': limit.toString(),
+                'X-RateLimit-Remaining': remaining.toString(),
+                'X-RateLimit-Reset': reset.toString(),
+              },
+            }
+          );
+        }
+      } catch {
+        // Redis unavailable or timed out - allow request to proceed (fail open)
+        console.warn('Rate limiting unavailable, proceeding without limit check');
       }
     }
 
@@ -152,16 +161,20 @@ export async function POST(request: NextRequest): Promise<NextResponse<ScanRespo
       });
     }
 
-    // Check for cached result (within 24 hours)
+    // Check for cached result (within 24 hours) with timeout
     try {
-      const cached = await prisma.scanResult.findFirst({
-        where: {
-          url: normalizedUrl,
-          expiresAt: {
-            gt: new Date(),
+      const cached = await withTimeout(
+        prisma.scanResult.findFirst({
+          where: {
+            url: normalizedUrl,
+            expiresAt: {
+              gt: new Date(),
+            },
           },
-        },
-      });
+        }),
+        10000,
+        'Database cache lookup timed out'
+      );
 
       if (cached) {
         const scraperData = cached.scraperData as ScanResult['scraperData'];
@@ -283,32 +296,40 @@ export async function POST(request: NextRequest): Promise<NextResponse<ScanRespo
     const now = new Date();
     const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours
 
-    // Try to save to database
+    // Try to save to database with timeout
     let savedResult;
     try {
-      // Delete old entry if exists
-      await prisma.scanResult.deleteMany({
-        where: { url: normalizedUrl },
-      });
+      // Delete old entry if exists (with timeout)
+      await withTimeout(
+        prisma.scanResult.deleteMany({
+          where: { url: normalizedUrl },
+        }),
+        10000,
+        'Database delete timed out'
+      );
 
-      savedResult = await prisma.scanResult.create({
-        data: {
-          url: normalizedUrl,
-          domain,
-          riskScore,
-          riskLevel,
-          whoisData: whoisResult as object,
-          sslData: sslResult as object,
-          hostingData: hostingResult as object,
-          scraperData: scraperResult as object,
-          patternsData: patternsResult as object,
-          githubData: githubResult as object,
-          archiveData: archiveResult as object,
-          threatData: combinedThreatData as object,
-          redFlags: redFlags as object[],
-          expiresAt,
-        },
-      });
+      savedResult = await withTimeout(
+        prisma.scanResult.create({
+          data: {
+            url: normalizedUrl,
+            domain,
+            riskScore,
+            riskLevel,
+            whoisData: whoisResult as object,
+            sslData: sslResult as object,
+            hostingData: hostingResult as object,
+            scraperData: scraperResult as object,
+            patternsData: patternsResult as object,
+            githubData: githubResult as object,
+            archiveData: archiveResult as object,
+            threatData: combinedThreatData as object,
+            redFlags: redFlags as object[],
+            expiresAt,
+          },
+        }),
+        10000,
+        'Database save timed out'
+      );
     } catch {
       // Create a mock result without database
       savedResult = {

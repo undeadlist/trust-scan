@@ -69,6 +69,32 @@ Determine if this site is likely to be:
 - New domain + missing policies + impossible claims = suspicious
 - New domain + has policies + reasonable claims = just new
 
+### Cloud IP Context
+${(() => {
+  const ip = scanResult.hostingData?.ipAddress;
+  if (!ip) return 'No IP data available.';
+  const CLOUD_PREFIXES = ['3.', '13.', '15.', '18.', '34.', '35.', '52.', '54.', '76.76.', '104.', '172.67.', '162.159.'];
+  const isCloud = CLOUD_PREFIXES.some(prefix => ip.startsWith(prefix));
+  if (isCloud) {
+    return `CLOUD HOSTING DETECTED: IP ${ip} belongs to a major cloud provider (AWS/GCP/Cloudflare/Vercel).
+- AbuseIPDB scores for cloud IPs are UNRELIABLE - they reflect ALL tenants on shared infrastructure
+- A high abuse score on a cloud IP is NOT evidence the specific site is malicious
+- Cloud IP + established domain = almost certainly a FALSE POSITIVE
+- DO NOT flag cloud IP abuse scores as concerning for established sites`;
+  }
+  return 'Dedicated or unknown hosting provider.';
+})()}
+
+### Mature Domain Context
+${scanResult.whoisData?.domainAge && scanResult.whoisData.domainAge > 1825
+  ? `MATURE DOMAIN: This domain is ${Math.floor(scanResult.whoisData.domainAge / 365)} years old.
+- Scammers do NOT maintain domains for 5+ years - this is a MAJOR trust signal
+- Cloud IP abuse on mature domains = FALSE POSITIVE (shared hosting)
+- Default to TRUSTWORTHY unless there are CRITICAL threat database hits (URLhaus/PhishTank)`
+  : scanResult.whoisData?.domainAge && scanResult.whoisData.domainAge > 365
+    ? `Domain is ${Math.floor(scanResult.whoisData.domainAge / 365)} years old - established presence.`
+    : ''}
+
 ### Company/Customer Claims
 - Only flag if site explicitly claims "X is our customer" or "Used by X"
 - DO NOT flag mentions of:

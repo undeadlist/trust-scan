@@ -3,6 +3,7 @@
 // Queries Spamhaus DBL (Domain Block List)
 
 import dns from 'dns/promises';
+import { withTimeout } from '@/lib/utils/timeout';
 
 export interface SpamhausResult {
   listed: boolean;
@@ -26,9 +27,13 @@ const DBL_RETURN_CODES: Record<string, string> = {
 
 export async function checkSpamhaus(domain: string): Promise<SpamhausResult> {
   try {
-    // Query Spamhaus DBL (Domain Block List)
+    // Query Spamhaus DBL (Domain Block List) with 10s timeout
     const lookup = `${domain}.dbl.spamhaus.org`;
-    const addresses = await dns.resolve4(lookup);
+    const addresses = await withTimeout(
+      dns.resolve4(lookup),
+      10000,
+      'Spamhaus DNS lookup timed out'
+    );
 
     // If we get a response, the domain is listed
     if (addresses.length > 0) {
@@ -47,7 +52,7 @@ export async function checkSpamhaus(domain: string): Promise<SpamhausResult> {
       return { listed: false };
     }
 
-    // Other DNS errors
+    // Timeout or other DNS errors - fail gracefully
     return {
       listed: false,
       error: error instanceof Error ? error.message : 'DNS lookup failed',

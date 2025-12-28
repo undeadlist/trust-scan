@@ -27,7 +27,7 @@ export default function TermsPage() {
         <div className="max-w-3xl mx-auto space-y-8">
           <ContentSection>
             <p className="text-zinc-400 text-sm mb-6">
-              Last updated: December 2024
+              Last updated: December 2025
             </p>
             <p className="text-zinc-300 mb-4">
               {BRAND.name} is a free, open-source tool built to help indie developers make more informed

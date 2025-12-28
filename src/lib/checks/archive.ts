@@ -3,8 +3,12 @@ import { fetchWithTimeout } from '../utils/timeout';
 
 export async function checkArchive(url: string): Promise<ArchiveData> {
   try {
-    // Use the Wayback Machine CDX API to get snapshot history
-    const cdxUrl = `https://web.archive.org/cdx/search/cdx?url=${encodeURIComponent(url)}&output=json&limit=1000&fl=timestamp`;
+    // Extract domain from URL - query domain not full URL path
+    // This finds archive history for the entire domain, not just specific paths
+    const domain = new URL(url).hostname;
+
+    // Use matchType=prefix to get all snapshots for the domain
+    const cdxUrl = `https://web.archive.org/cdx/search/cdx?url=${encodeURIComponent(domain)}&matchType=prefix&output=json&limit=1000&fl=timestamp`;
 
     const response = await fetchWithTimeout(cdxUrl, {
       headers: {

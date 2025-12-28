@@ -11,6 +11,24 @@ import {
 } from './types';
 import { checkDomainKeywords } from './checks/patterns';
 
+// Cloud provider IP prefixes - these use shared IPs so AbuseIPDB scores are unreliable
+const CLOUD_PREFIXES = [
+  '3.', '13.', '15.', '18.', '34.', '35.', '52.', '54.', '99.',  // AWS
+  '104.196.', '104.199.', '130.211.', '142.250.',  // GCP
+  '104.16.', '104.17.', '104.18.', '104.19.', '104.20.', '104.21.',
+  '104.22.', '104.23.', '104.24.', '104.25.', '104.26.', '104.27.',
+  '172.67.', '162.159.', '141.101.',  // Cloudflare
+  '76.76.', '64.71.',  // Vercel
+  '151.101.', '199.232.',  // Fastly
+  '104.131.', '104.236.', '138.68.', '139.59.', '142.93.',
+  '157.245.', '159.65.', '161.35.', '164.90.', '165.22.',
+  '167.71.', '167.172.', '174.138.',  // DigitalOcean
+];
+
+function isCloudIP(ip: string): boolean {
+  return CLOUD_PREFIXES.some(prefix => ip.startsWith(prefix));
+}
+
 interface ScoringResult {
   riskScore: number;
   riskLevel: 'low' | 'medium' | 'high' | 'critical';
@@ -48,15 +66,29 @@ export function calculateRiskScore(results: CheckResults): ScoringResult {
     points: number;
     reason: string;
   }> = [
+    // Domain age (tiered - mature domains are major trust signals)
+    { condition: !!(results.whoisData?.domainAge && results.whoisData.domainAge > 1825), points: -40, reason: 'Domain over 5 years old (established)' },
+    { condition: !!(results.whoisData?.domainAge && results.whoisData.domainAge > 365 && results.whoisData.domainAge <= 1825), points: -20, reason: 'Domain over 1 year old' },
+    { condition: !!(results.whoisData?.domainAge && results.whoisData.domainAge > 180 && results.whoisData.domainAge <= 365), points: -10, reason: 'Domain over 6 months old' },
+
+    // SSL
     { condition: !!(results.sslData?.valid && (results.sslData.daysRemaining ?? 0) > 30), points: -10, reason: 'Valid SSL certificate' },
+
+    // Site content
     { condition: !!results.scraperData?.hasPrivacyPolicy, points: -5, reason: 'Has privacy policy' },
     { condition: !!results.scraperData?.hasTermsOfService, points: -5, reason: 'Has terms of service' },
     { condition: !!results.scraperData?.hasContactPage, points: -5, reason: 'Has contact page' },
-    { condition: !!(results.whoisData?.domainAge && results.whoisData.domainAge > 365), points: -15, reason: 'Domain over 1 year old' },
-    { condition: !!(results.whoisData?.domainAge && results.whoisData.domainAge > 180 && results.whoisData.domainAge <= 365), points: -8, reason: 'Domain over 6 months old' },
-    { condition: !!(results.githubData?.repoFound && (results.githubData.stars ?? 0) > 100), points: -10, reason: 'Popular GitHub repo' },
+    { condition: !!results.scraperData?.hasDocumentation, points: -5, reason: 'Has documentation' },
+
+    // Hosting
+    { condition: !!(results.hostingData && !results.hostingData.isFreeHosting), points: -5, reason: 'Paid hosting' },
+
+    // GitHub presence
+    { condition: !!(results.githubData?.repoFound && (results.githubData.stars ?? 0) > 10), points: -10, reason: 'GitHub repo with stars' },
     { condition: !!(results.githubData?.repoFound && (results.githubData.contributors ?? 0) > 5), points: -5, reason: 'Multiple contributors' },
-    { condition: !!(results.archiveData?.found && (results.archiveData.snapshotCount ?? 0) > 10), points: -5, reason: 'Established web presence' },
+
+    // Archive presence
+    { condition: !!(results.archiveData?.found && (results.archiveData.snapshotCount ?? 0) > 10), points: -10, reason: 'Established web presence (Archive.org)' },
   ];
 
   // Apply positive scoring (reduces base score)
@@ -311,15 +343,28 @@ export function calculateRiskScore(results: CheckResults): ScoringResult {
       });
     }
 
-    // AbuseIPDB detection
+    // AbuseIPDB detection - SKIP for cloud IPs (shared hosting = unreliable scores)
     const abuseIPDB = (results.threatData as { abuseIPDB?: { isMalicious?: boolean; abuseScore?: number; totalReports?: number } }).abuseIPDB;
-    if (abuseIPDB?.isMalicious) {
+    const serverIP = results.hostingData?.ipAddress;
+    const isCloud = serverIP ? isCloudIP(serverIP) : false;
+
+    // Only flag non-cloud IPs, OR cloud IPs with extremely high scores (>90%)
+    if (abuseIPDB?.isMalicious && !isCloud) {
       redFlags.push({
         category: 'suspicious_patterns',
         severity: 'high',
         title: 'Suspicious IP Address',
         description: 'The server IP has been reported for abuse.',
         evidence: `Abuse confidence: ${abuseIPDB.abuseScore}%, Reports: ${abuseIPDB.totalReports}`,
+      });
+    } else if (abuseIPDB?.isMalicious && isCloud && (abuseIPDB.abuseScore ?? 0) > 90) {
+      // Only flag cloud IPs if score is extremely high
+      redFlags.push({
+        category: 'suspicious_patterns',
+        severity: 'low',
+        title: 'Cloud IP Has High Abuse Reports',
+        description: 'Server uses shared cloud hosting with abuse reports (may be from other tenants).',
+        evidence: `Abuse confidence: ${abuseIPDB.abuseScore}%, Reports: ${abuseIPDB.totalReports}, Cloud IP: ${serverIP}`,
       });
     }
   }
