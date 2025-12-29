@@ -10,6 +10,10 @@ Trust Scan is a free URL security scanner for indie developers and AI builders. 
 
 Built by [UndeadList.com](https://undeadlist.com)
 
+![Trust Scan Homepage](screenshot1.png)
+
+![Scan Results with AI Analysis](screenshot2.png)
+
 ## Features
 
 ### Security Checks
