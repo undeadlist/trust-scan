@@ -10,8 +10,8 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 COPY prisma ./prisma/
 
-# Install dependencies
-RUN npm ci --only=production
+# Install all dependencies (devDeps needed for build)
+RUN npm ci
 
 # Generate Prisma client
 RUN npx prisma generate
@@ -44,6 +44,10 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
 COPY --from=deps /app/node_modules/.prisma ./node_modules/.prisma
 
+# Create cache directory and set ownership BEFORE switching user
+RUN mkdir -p /app/.next/cache
+RUN chown -R nextjs:nodejs /app /app/.next
+
 USER nextjs
 
 EXPOSE 3000
@@ -51,8 +55,8 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Health check
+# Health check (use 127.0.0.1 to avoid IPv6 issues)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/config || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/api/config || exit 1
 
 CMD ["node", "server.js"]
