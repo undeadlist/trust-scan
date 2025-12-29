@@ -229,6 +229,10 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 See [SECURITY.md](SECURITY.md) for reporting vulnerabilities.
 
+## Roadmap
+
+This is **v1** of Trust Scan - a free scanner for the community. Team UndeadList is actively developing new features and improving detection patterns. Stay tuned.
+
 ## License
 
 MIT - See [LICENSE](LICENSE) for details.
