@@ -1,5 +1,9 @@
 # Trust Scan
 
+[![Built by UndeadList](https://img.shields.io/badge/Built%20by-UndeadList-red?style=flat-square)](https://undeadlist.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
+[![Live Demo](https://img.shields.io/badge/Live-aibuilds.net-green?style=flat-square)](https://aibuilds.net)
+
 **Is this app legit? Check before you connect.**
 
 Trust Scan is a free URL security scanner for indie developers and AI builders. Scan any URL to detect red flags, verify domains, and make informed decisions before connecting your accounts or sharing API keys.
@@ -223,8 +227,12 @@ See [SECURITY.md](SECURITY.md) for reporting vulnerabilities.
 
 ## License
 
-MIT
+MIT - See [LICENSE](LICENSE) for details.
 
 ---
+
+Built by [UndeadList](https://undeadlist.com) - the indie dev flea market.
+
+**Live at:** [aibuilds.net](https://aibuilds.net)
 
 *Results are informational only. Always do your own research before connecting to any service.*
