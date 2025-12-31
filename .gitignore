@@ -40,3 +40,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Claude Code local settings
+.claude/
+
+# Production secrets (explicit)
+production.env
+
+# Windows artifacts
+nul

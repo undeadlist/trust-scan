@@ -221,6 +221,62 @@ npm run lint
 npx tsc --noEmit
 ```
 
+## Docker Deployment
+
+### Quick Start with Docker
+
+```bash
+# Clone the repository
+git clone https://github.com/undeadlist/trust-scan.git
+cd trust-scan
+
+# Create environment file
+cp .env.example .env
+# Edit .env with your configuration
+
+# Build and run with Docker Compose
+docker compose up -d --build
+
+# Initialize database schema (first time only)
+docker compose exec trustscan npx prisma db push
+
+# Verify the application is running
+curl http://localhost:3002/api/config
+```
+
+### Docker Compose Services
+
+| Service | Description | Port |
+|---------|-------------|------|
+| `trustscan` | Main Next.js application | 3002:3000 |
+| `cloudflared` | Cloudflare tunnel (optional) | - |
+
+### Common Docker Commands
+
+```bash
+# View logs
+docker compose logs -f trustscan
+
+# Restart application
+docker compose restart trustscan
+
+# Rebuild after code changes
+docker compose up -d --build trustscan
+
+# Stop all services
+docker compose down
+
+# Check container health
+docker compose ps
+```
+
+### Production Considerations
+
+- Ensure `.env` file permissions are restricted: `chmod 600 .env`
+- Use a cloud-hosted PostgreSQL (e.g., Neon, Supabase) for reliability
+- Configure Upstash Redis for rate limiting
+- Set up Cloudflare tunnel for secure public access without port forwarding
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.

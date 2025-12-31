@@ -358,6 +358,36 @@ const PATTERN_RULES: PatternRule[] = [
   },
 ];
 
+// AI services that are commonly impersonated - domains containing these that aren't official are suspicious
+const AI_SERVICE_IMPERSONATORS = [
+  { keyword: 'chatgpt', official: ['chatgpt.com', 'chat.openai.com', 'openai.com'] },
+  { keyword: 'chat-gpt', official: [] },  // Hyphenated version is always suspicious
+  { keyword: 'openai', official: ['openai.com'] },
+  { keyword: 'midjourney', official: ['midjourney.com'] },
+  { keyword: 'claude', official: ['claude.ai', 'anthropic.com'] },
+  { keyword: 'gemini', official: ['gemini.google.com'] },
+  { keyword: 'copilot', official: ['copilot.microsoft.com', 'github.com'] },
+  { keyword: 'bard', official: ['bard.google.com'] },
+  { keyword: 'gpt-4', official: ['openai.com'] },
+  { keyword: 'gpt4', official: ['openai.com'] },
+  { keyword: 'dall-e', official: ['openai.com'] },
+  { keyword: 'dalle', official: ['openai.com'] },
+  { keyword: 'sora', official: ['openai.com'] },
+];
+
+// Suspicious generic AI domain patterns (lower confidence than specific impersonators)
+const SUSPICIOUS_AI_DOMAIN_PATTERNS = [
+  /^ai-?pro\./i,           // ai-pro.* domains
+  /^ai-?[a-z]+-?ai\./i,    // ai-something-ai.* domains
+  /-ai-?(pro|premium|plus|free)\./i,  // *-ai-pro.*, *-ai-free.* etc.
+];
+
+// Suspicious TLDs commonly used in scam/phishing sites
+const SUSPICIOUS_TLDS = ['.online', '.top', '.xyz', '.site', '.click', '.link', '.work', '.fun', '.icu'];
+
+// Suspicious suffixes in domain names (especially combined with AI service names)
+const SUSPICIOUS_DOMAIN_SUFFIXES = ['-pc', '-pro', '-go', '-app', '-free', '-download', '-official', '-support'];
+
 // Suspicious keywords commonly found in scam domain names
 const SUSPICIOUS_DOMAIN_KEYWORDS = [
   // Obvious scam indicators
@@ -382,6 +412,108 @@ export function checkDomainKeywords(domain: string): PatternMatch[] {
   const matches: PatternMatch[] = [];
   const lowerDomain = domain.toLowerCase();
 
+  // Extract just the main domain (without subdomains) for TLD checking
+  const domainParts = lowerDomain.split('.');
+  const tld = '.' + domainParts[domainParts.length - 1];
+  const fullDomainForCheck = domainParts.slice(-2).join('.'); // e.g., "example.com"
+
+  // === AI SERVICE IMPERSONATOR DETECTION ===
+  // This is the highest priority check - catches ChatGPT, OpenAI, Midjourney impersonators
+  // Check full domain including subdomains (e.g., pay.chatgpt-oracle.com should detect "chatgpt")
+  for (const service of AI_SERVICE_IMPERSONATORS) {
+    // Check if domain contains the AI service keyword (anywhere in the full domain)
+    if (lowerDomain.includes(service.keyword)) {
+      // Check if this is an official domain
+      // An official domain is one that exactly matches or is a subdomain of an official domain
+      const isOfficial = service.official.some(official => {
+        const normalizedOfficial = official.toLowerCase();
+        return lowerDomain === normalizedOfficial ||
+               lowerDomain.endsWith('.' + normalizedOfficial) ||
+               // Also check if the main domain (without subdomains) is official
+               fullDomainForCheck === normalizedOfficial;
+      });
+
+      if (!isOfficial) {
+        // Check for especially dangerous patterns: -pc suffix (documented malware delivery)
+        const hasPcSuffix = lowerDomain.includes('-pc');
+
+        // Check for suspicious TLD
+        const hasSuspiciousTLD = SUSPICIOUS_TLDS.includes(tld);
+
+        // AI impersonation is ALWAYS critical severity
+        // Scammers can have valid SSL certs and archive history, so this must outweigh positive signals
+        const severity: 'low' | 'medium' | 'high' | 'critical' = 'critical';
+        let description = `Domain impersonates ${service.keyword.toUpperCase()} (not an official domain)`;
+
+        if (hasPcSuffix) {
+          description = `MALWARE RISK: Domain impersonates ${service.keyword.toUpperCase()} with "-pc" suffix (known malware distribution pattern)`;
+        } else if (hasSuspiciousTLD) {
+          description = `Domain impersonates ${service.keyword.toUpperCase()} on suspicious TLD (${tld})`;
+        }
+
+        matches.push({
+          pattern: `ai-impersonator-${service.keyword}`,
+          category: 'suspicious_patterns',
+          severity,
+          description,
+          matched: domain,
+        });
+        break; // Only add one AI impersonator match per domain
+      }
+    }
+  }
+
+  // === SUSPICIOUS AI DOMAIN PATTERNS ===
+  // Check for generic suspicious AI domain patterns like ai-pro.org
+  for (const pattern of SUSPICIOUS_AI_DOMAIN_PATTERNS) {
+    if (pattern.test(lowerDomain)) {
+      matches.push({
+        pattern: `suspicious-ai-pattern`,
+        category: 'suspicious_patterns',
+        severity: 'high',
+        description: 'Domain matches suspicious AI-related naming pattern',
+        matched: domain,
+      });
+      break; // Only add one match
+    }
+  }
+
+  // === SUSPICIOUS TLD CHECK ===
+  // Flag domains on known suspicious TLDs (even without AI keywords)
+  if (SUSPICIOUS_TLDS.includes(tld)) {
+    // Only flag if there are other suspicious indicators or it's a particularly bad TLD
+    const veryBadTLDs = ['.top', '.click', '.icu'];
+    if (veryBadTLDs.includes(tld)) {
+      matches.push({
+        pattern: `suspicious-tld-${tld}`,
+        category: 'suspicious_patterns',
+        severity: 'medium',
+        description: `Domain uses suspicious TLD (${tld}) commonly associated with scam sites`,
+        matched: domain,
+      });
+    }
+  }
+
+  // === SUSPICIOUS SUFFIX CHECK ===
+  // Check for dangerous suffixes like -pc, -download, etc.
+  for (const suffix of SUSPICIOUS_DOMAIN_SUFFIXES) {
+    if (lowerDomain.includes(suffix)) {
+      // -pc is especially dangerous (documented malware pattern)
+      const severity = suffix === '-pc' ? 'high' : 'medium';
+      matches.push({
+        pattern: `suspicious-suffix-${suffix}`,
+        category: 'suspicious_patterns',
+        severity,
+        description: suffix === '-pc'
+          ? `Domain contains "${suffix}" suffix (common in malware distribution sites)`
+          : `Domain contains suspicious suffix "${suffix}"`,
+        matched: domain,
+      });
+      break; // Only flag one suffix
+    }
+  }
+
+  // === ORIGINAL KEYWORD CHECKS ===
   for (const keyword of SUSPICIOUS_DOMAIN_KEYWORDS) {
     if (lowerDomain.includes(keyword) || lowerDomain.includes(keyword.replace(/-/g, ''))) {
       matches.push({
@@ -406,7 +538,7 @@ export function checkDomainKeywords(domain: string): PatternMatch[] {
     });
   }
 
-  // Check for suspicious TLD + keyword combinations
+  // Check for suspicious TLD + keyword combinations (legacy patterns)
   const suspiciousTLDPatterns = [
     /free.*\.(app|io|dev|site|online|xyz)$/i,
     /crypto.*\.(app|io|dev|site|online|xyz)$/i,

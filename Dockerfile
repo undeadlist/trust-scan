@@ -30,6 +30,14 @@ RUN npm run build
 FROM base AS runner
 WORKDIR /app
 
+# OCI Labels
+LABEL org.opencontainers.image.title="Trust Scan"
+LABEL org.opencontainers.image.description="Free URL security scanner for indie developers"
+LABEL org.opencontainers.image.version="1.0.0"
+LABEL org.opencontainers.image.source="https://github.com/undeadlist/trust-scan"
+LABEL org.opencontainers.image.authors="UndeadList"
+LABEL maintainer="UndeadList"
+
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 

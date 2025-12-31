@@ -16,6 +16,7 @@ export function getOllamaConfig() {
   return {
     serverUrl: process.env.OLLAMA_SERVER_URL || '',
     model: process.env.OLLAMA_MODEL || 'dolphin-mistral:latest',
+    apiKey: process.env.UNDEAD_GATEWAY_KEY || '',
   };
 }
 
@@ -60,18 +61,23 @@ export async function analyzeWithOllama(scanResult: ScanResult): Promise<AIAnaly
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
 
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (config.apiKey) {
+      headers['x-api-key'] = config.apiKey;
+    }
+
     const response = await fetch(`${config.serverUrl}/api/generate`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({
         model: config.model,
         prompt: prompt + '\n\nRespond with valid JSON only. No markdown, no explanation, just the JSON object.',
         stream: false,
         options: {
-          temperature: 0.4,
-          num_predict: 2048,
+          temperature: 0.3,  // Lower for consistent structured output
+          num_predict: 8192, // Increased for comprehensive report
         },
       }),
       signal: controller.signal,
@@ -104,6 +110,29 @@ export async function analyzeWithOllama(scanResult: ScanResult): Promise<AIAnaly
     }
 
     const analysis = JSON.parse(jsonText) as AIAnalysis;
+
+    // Validate and clamp scoreAdjustment to ±50 range
+    if (typeof analysis.scoreAdjustment === 'number') {
+      analysis.scoreAdjustment = Math.max(-50, Math.min(50, Math.round(analysis.scoreAdjustment)));
+    } else {
+      analysis.scoreAdjustment = 0;
+    }
+
+    // Backend safeguard: Override AI verdict when it contradicts critical red flags
+    // The AI sometimes weighs positives (mature domain, SSL) over critical security issues
+    const hasCriticalFlags = scanResult.redFlags.some(f => f.severity === 'critical');
+    if (hasCriticalFlags && analysis.verdict?.assessment === 'TRUSTWORTHY') {
+      analysis.verdict.assessment = 'CAUTION';
+      const overrideNote = ' [System: Critical security flags require minimum CAUTION verdict]';
+      analysis.adjustmentReason = (analysis.adjustmentReason || '') + overrideNote;
+
+      // Ensure score is at least 20 (medium risk) when critical flags exist
+      const currentFinal = scanResult.riskScore + (analysis.scoreAdjustment || 0);
+      if (currentFinal < 20) {
+        analysis.scoreAdjustment = 20 - scanResult.riskScore;
+      }
+    }
+
     return analysis;
   } catch (error) {
     throw new Error(parseOllamaError(error));

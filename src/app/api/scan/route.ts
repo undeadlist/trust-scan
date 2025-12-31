@@ -16,6 +16,7 @@ import {
 import { calculateRiskScore } from '@/lib/scoring';
 import { ScanResponse, ScanResult } from '@/lib/types';
 import { withTimeout, fetchWithTimeout } from '@/lib/utils/timeout';
+import { validateUrl } from '@/lib/utils/url-validator';
 import { isKnownLegitDomain, getKnownEntityInfo, getKnownEntityCategory } from '@/lib/known-entities';
 import { isVerifiedSite } from '@/lib/verified-sites';
 import { Ratelimit } from '@upstash/ratelimit';
@@ -99,9 +100,13 @@ export async function POST(request: NextRequest): Promise<NextResponse<ScanRespo
             }
           );
         }
-      } catch {
-        // Redis unavailable or timed out - allow request to proceed (fail open)
-        console.warn('Rate limiting unavailable, proceeding without limit check');
+      } catch (rateLimitError) {
+        // FAIL CLOSED: Reject request when rate limiting is unavailable
+        console.error('Rate limiting unavailable:', rateLimitError);
+        return NextResponse.json(
+          { success: false, error: 'Service temporarily unavailable. Please try again later.' },
+          { status: 503 }
+        );
       }
     }
 
@@ -111,6 +116,15 @@ export async function POST(request: NextRequest): Promise<NextResponse<ScanRespo
     if (!url || typeof url !== 'string') {
       return NextResponse.json(
         { success: false, error: 'URL is required' },
+        { status: 400 }
+      );
+    }
+
+    // SSRF protection - validate URL before processing
+    const validation = validateUrl(url.trim());
+    if (!validation.isValid) {
+      return NextResponse.json(
+        { success: false, error: validation.error },
         { status: 400 }
       );
     }

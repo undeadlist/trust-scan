@@ -6,221 +6,177 @@ export function hasTrustScanServer(): boolean {
   return !!process.env.OLLAMA_SERVER_URL;
 }
 
-// Site type detection for context-aware analysis
-function detectSiteType(scanResult: ScanResult): string {
-  const { scraperData, patternsData } = scanResult;
-
-  // Check for developer tool indicators
-  if (scraperData?.permissionsRequested?.some(p =>
-    p.toLowerCase().includes('api') ||
-    p.toLowerCase().includes('key') ||
-    p.toLowerCase().includes('token')
-  )) {
-    return 'DEVELOPER_TOOL - This site requests API keys/tokens. Apply extra scrutiny to credential requests, but note that legitimate dev tools do need API keys.';
-  }
-
-  // Check for crypto/web3 indicators
-  if (patternsData?.matches?.some(m =>
-    m.category === 'dangerous_permissions' && m.matched.toLowerCase().includes('wallet')
-  ) || patternsData?.matches?.some(m =>
-    m.matched.toLowerCase().includes('airdrop') ||
-    m.matched.toLowerCase().includes('crypto') ||
-    m.matched.toLowerCase().includes('web3')
-  )) {
-    return 'CRYPTO_SERVICE - This site involves cryptocurrency/Web3. Apply higher scrutiny for common crypto scam patterns (airdrops, guaranteed returns, wallet drainers).';
-  }
-
-  // Check for commercial service
-  if (scraperData?.hasPricing) {
-    return 'COMMERCIAL_SERVICE - This is a paid service. Verify business legitimacy indicators (contact info, policies, company registration).';
-  }
-
-  // Check for support/helpdesk clone patterns
-  if (patternsData?.matches?.some(m =>
-    m.description.includes('support') || m.description.includes('official')
-  )) {
-    return 'POTENTIAL_CLONE - Site may be impersonating an official service. Verify it is the real official site and not a phishing clone.';
-  }
-
-  return 'GENERAL_WEBSITE - Standard website evaluation. Apply balanced analysis.';
-}
-
-// Shared prompt builder for Trust Scan AI
+// Shared prompt builder for Trust Scan AI - Comprehensive Security Report
 export function buildAnalysisPrompt(scanResult: ScanResult): string {
-  const domainAgeDays = scanResult.whoisData?.domainAge ?? null;
-  const siteType = detectSiteType(scanResult);
+  const domainAge = scanResult.whoisData?.domainAge;
+  const domainYears = domainAge ? Math.floor(domainAge / 365) : null;
 
-  return `You are a scam detector for indie developers evaluating web apps and services.
+  return `You are a security analyst generating a COMPREHENSIVE SECURITY REPORT.
 
-## YOUR JOB
-Determine if this site is likely to be:
-- A credential harvesting scam
-- A honeypot for API keys
-- Vaporware with impossible claims
-- Legitimate but new/unestablished
-- Legitimate and trustworthy
+Use ONLY the data provided below. Do NOT invent or assume any values.
+If a value shows "Unknown" or is missing, acknowledge that in your analysis.
 
-## IMPORTANT CONTEXT RULES
+================================================================================
+                              SCAN DATA
+================================================================================
 
-### Domain Age
-- New domain (<30 days) is a WEAK signal, not definitive
-- Many legitimate indie projects launch on new domains
-- Only flag as HIGH risk if combined with OTHER red flags
-- New domain + missing policies + impossible claims = suspicious
-- New domain + has policies + reasonable claims = just new
-
-### Cloud IP Context
-${(() => {
-  const ip = scanResult.hostingData?.ipAddress;
-  if (!ip) return 'No IP data available.';
-  const CLOUD_PREFIXES = ['3.', '13.', '15.', '18.', '34.', '35.', '52.', '54.', '76.76.', '104.', '172.67.', '162.159.'];
-  const isCloud = CLOUD_PREFIXES.some(prefix => ip.startsWith(prefix));
-  if (isCloud) {
-    return `CLOUD HOSTING DETECTED: IP ${ip} belongs to a major cloud provider (AWS/GCP/Cloudflare/Vercel).
-- AbuseIPDB scores for cloud IPs are UNRELIABLE - they reflect ALL tenants on shared infrastructure
-- A high abuse score on a cloud IP is NOT evidence the specific site is malicious
-- Cloud IP + established domain = almost certainly a FALSE POSITIVE
-- DO NOT flag cloud IP abuse scores as concerning for established sites`;
-  }
-  return 'Dedicated or unknown hosting provider.';
-})()}
-
-### Mature Domain Context
-${scanResult.whoisData?.domainAge && scanResult.whoisData.domainAge > 1825
-  ? `MATURE DOMAIN: This domain is ${Math.floor(scanResult.whoisData.domainAge / 365)} years old.
-- Scammers do NOT maintain domains for 5+ years - this is a MAJOR trust signal
-- Cloud IP abuse on mature domains = FALSE POSITIVE (shared hosting)
-- Default to TRUSTWORTHY unless there are CRITICAL threat database hits (URLhaus/PhishTank)`
-  : scanResult.whoisData?.domainAge && scanResult.whoisData.domainAge > 365
-    ? `Domain is ${Math.floor(scanResult.whoisData.domainAge / 365)} years old - established presence.`
-    : ''}
-
-### Company/Customer Claims
-- Only flag if site explicitly claims "X is our customer" or "Used by X"
-- DO NOT flag mentions of:
-  - Payment processors (Apple Pay, Google Pay, Stripe)
-  - Platform names in context (App Store, Google Play)
-  - Technologies (uses Apple's framework, built with...)
-  - Marketplace listings that mention brands
-  - Social login options (Sign in with Google/Apple)
-- "Trusted by Apple" = RED FLAG
-- "Accepts Apple Pay" = NOT A FLAG
-
-### Privacy Protection (WHOIS)
-- Privacy protection is NORMAL and COMMON
-- Most legitimate businesses use it
-- Only flag if combined with other issues
-- NOT a red flag on its own
-
-### Archive.org History
-- No history just means the site is new
-- Only matters if site claims to be established
-- "Founded in 2020" + no archive = suspicious
-- New site + no archive = expected
-
-### Scraper Limitations
-${scanResult.scraperData?.scraperLimited ? '⚠️ SCRAPER WAS LIMITED - the site may be JavaScript-heavy and some data could not be extracted. Do not flag missing pages as suspicious.' : 'Scraper completed successfully.'}
-
-### What IS Suspicious
-- Claims of enterprise features on free hosting
-- Claims of funding with no verifiable record
-- Requests for sensitive credentials (DB URLs, write access)
-- Impossible technical claims (auto-rollback without integration)
-- No way to contact (no email, no form, no social)
-- Generic testimonials with stock photos
-- Urgency tactics ("Limited time", "Act now")
-- Too-good-to-be-true pricing
-- Typos and poor grammar throughout
-- Mismatch between claimed scale and infrastructure
-
-### What is NOT Suspicious
-- Using free hosting (Vercel, Netlify) - normal for indie devs
-- Being new - everyone starts somewhere
-- Privacy-protected WHOIS - industry standard
-- No archive history - just means new
-- Simple/minimal design - indie aesthetic
-- Solo founder - common in indie space
-- Payment mentions (Apple Pay, Stripe) - normal commerce
-- No GitHub repo - not every company is open source
-
-## SITE TYPE CONTEXT
-${siteType}
-
-## ENHANCED FALSE POSITIVE RULES
-- "verify your email" for signup flows is NORMAL, not phishing
-- Developer tools legitimately request API keys - evaluate the CONTEXT of the request
-- Payment processors mentioned as OPTIONS (Apple Pay, Stripe checkout) are fine
-- Only flag claims when the site MAKES the claim, not when it just MENTIONS a company
-- Tech support pages for real products are legitimate - only flag if suspicious
-
-## THREAT INTELLIGENCE
-${scanResult.threatData?.isMalicious
-  ? `⚠️ CRITICAL: This URL was found in threat databases! Threat: ${scanResult.threatData.threat || 'malware'}${scanResult.threatData.tags?.length ? `. Tags: ${scanResult.threatData.tags.join(', ')}` : ''}`
-  : 'No matches found in URLhaus threat database (good sign)'}
-
-## SCORING GUIDANCE
-- Base risk score from automated scan: ${scanResult.riskScore}/100 (${scanResult.riskLevel})
-- If automated scan found CRITICAL issues: These are usually accurate, trust them
-- If scan found nothing but something feels wrong: Explain your reasoning clearly
-- New site + no red flags + reasonable claims = likely legitimate indie project
-- Trust the pattern detection for obvious scam language
-
-## SCAN DATA
+TARGET: ${scanResult.domain}
 URL: ${scanResult.url}
-Domain: ${scanResult.domain}
-Domain Age: ${domainAgeDays !== null ? `${domainAgeDays} days` : 'Unknown'}
-Risk Score: ${scanResult.riskScore}/100 (${scanResult.riskLevel})
-Scan Confidence: ${scanResult.scanConfidence}
-${scanResult.scanNotes.length > 0 ? `Scan Notes: ${scanResult.scanNotes.join(', ')}` : ''}
+SCAN CONFIDENCE: ${scanResult.scanConfidence}
+BASE RISK SCORE: ${scanResult.riskScore}/100 (${scanResult.riskLevel})
 
-### WHOIS:
-${scanResult.whoisData ? JSON.stringify({
-  domainAge: scanResult.whoisData.domainAge,
-  registrar: scanResult.whoisData.registrar,
-  privacyProtected: scanResult.whoisData.privacyProtected,
-}, null, 2) : 'Not available'}
+--- WHOIS DATA ---
+Domain Age: ${domainAge !== null ? `${domainAge} days (approximately ${domainYears} years)` : 'Unknown'}
+Creation Date: ${scanResult.whoisData?.creationDate || 'Unknown'}
+Expiration Date: ${scanResult.whoisData?.expirationDate || 'Unknown'}
+Registrar: ${scanResult.whoisData?.registrar || 'Unknown (WHOIS privacy)'}
+Privacy Protected: ${scanResult.whoisData?.privacyProtected ? 'Yes' : 'No'}
 
-### SSL: ${scanResult.sslData?.valid ? 'Valid' : 'Invalid/Not checked'}
-${scanResult.sslData?.daysRemaining ? `Days until expiry: ${scanResult.sslData.daysRemaining}` : ''}
+--- SSL DATA ---
+Certificate Valid: ${scanResult.sslData?.valid ? 'YES' : 'NO - INVALID/FAILED'}
+Issuer: ${scanResult.sslData?.issuer || 'Unknown'}
+Valid From: ${scanResult.sslData?.validFrom || 'Unknown'}
+Valid To: ${scanResult.sslData?.validTo || 'Unknown'}
+Days Remaining: ${scanResult.sslData?.daysRemaining ?? 'Unknown'}
 
-### Hosting: ${scanResult.hostingData?.provider || 'Unknown'}
-${scanResult.hostingData?.isFreeHosting ? '(Free hosting tier)' : ''}
+--- HOSTING DATA ---
+Provider: ${scanResult.hostingData?.provider || 'Unknown'}
+Free Hosting: ${scanResult.hostingData?.isFreeHosting ? 'Yes' : 'No'}
+CDN: ${scanResult.hostingData?.cdnDetected || 'None detected'}
+IP Address: ${scanResult.hostingData?.ipAddress || 'Unknown'}
+Country: ${scanResult.hostingData?.country || 'Unknown'}
 
-### Website Content:
-${scanResult.scraperData ? JSON.stringify({
-  title: scanResult.scraperData.title,
-  hasContact: scanResult.scraperData.hasContactPage,
-  hasPrivacy: scanResult.scraperData.hasPrivacyPolicy,
-  hasTerms: scanResult.scraperData.hasTermsOfService,
-  hasPricing: scanResult.scraperData.hasPricing,
-  hasDocs: scanResult.scraperData.hasDocumentation,
-  socialLinks: scanResult.scraperData.socialLinks.length,
-  scraperLimited: scanResult.scraperData.scraperLimited,
-}, null, 2) : 'Not available'}
+--- CONTENT DATA ---
+Site Title: ${scanResult.scraperData?.title || 'Unknown'}
+Contact Page: ${scanResult.scraperData?.hasContactPage ? 'Found' : 'Not Found'}
+Privacy Policy: ${scanResult.scraperData?.hasPrivacyPolicy ? 'Found' : 'Not Found'}
+Terms of Service: ${scanResult.scraperData?.hasTermsOfService ? 'Found' : 'Not Found'}
+Pricing Page: ${scanResult.scraperData?.hasPricing ? 'Found' : 'Not Found'}
+Documentation: ${scanResult.scraperData?.hasDocumentation ? 'Found' : 'Not Found'}
+Social Links: ${scanResult.scraperData?.socialLinks?.length || 0} found
+Scraper Limited: ${scanResult.scraperData?.scraperLimited ? 'Yes (JS-heavy site)' : 'No'}
 
-### Red Flags Detected:
+--- ARCHIVE DATA ---
+Found in Archive.org: ${scanResult.archiveData?.found ? 'Yes' : 'No'}
+First Snapshot: ${scanResult.archiveData?.firstSnapshot || 'Unknown'}
+Total Snapshots: ${scanResult.archiveData?.snapshotCount ?? 'Unknown'}
+Archive Age: ${scanResult.archiveData?.oldestAge ? `${scanResult.archiveData.oldestAge} days` : 'Unknown'}
+
+--- THREAT INTELLIGENCE ---
+Malicious (URLhaus): ${scanResult.threatData?.isMalicious ? 'YES - FLAGGED' : 'Clean'}
+Threat Type: ${scanResult.threatData?.threat || 'None'}
+Tags: ${scanResult.threatData?.tags?.join(', ') || 'None'}
+
+--- RED FLAGS DETECTED ---
 ${scanResult.redFlags.length > 0
-  ? scanResult.redFlags.map(f => `- [${f.severity.toUpperCase()}] ${f.title}: ${f.description}`).join('\n')
-  : 'No red flags detected'}
+  ? scanResult.redFlags.map(f => `[${f.severity.toUpperCase()}] ${f.title}: ${f.description}`).join('\n')
+  : 'None detected'}
 
-### GitHub: ${scanResult.githubData?.repoFound ? `Found - ${scanResult.githubData.stars} stars` : 'No repository found (this is fine for non-dev companies)'}
+--- GITHUB DATA ---
+${scanResult.githubData?.repoFound
+  ? `Repository: ${scanResult.githubData.repoUrl}
+Stars: ${scanResult.githubData.stars}
+Contributors: ${scanResult.githubData.contributors}
+Last Commit: ${scanResult.githubData.lastCommit}`
+  : 'No repository found'}
 
-### Archive.org: ${scanResult.archiveData?.found ? `${scanResult.archiveData.snapshotCount} snapshots` : 'No history (just means site is new)'}
+================================================================================
+                         GENERATE COMPREHENSIVE REPORT
+================================================================================
 
----
+Respond with this EXACT JSON structure. Fill in each section based on the SCAN DATA above.
 
-## RESPONSE FORMAT
-Respond with JSON only:
 {
-  "riskLevel": "LOW" | "MEDIUM" | "HIGH" | "CRITICAL",
-  "verdict": "TRUSTWORTHY" | "CAUTION" | "SUSPICIOUS" | "AVOID",
-  "summary": "One sentence summary",
-  "concerns": ["List of specific concerns with context"],
-  "positives": ["List of trust signals"],
-  "reasoning": "2-3 sentences explaining your assessment",
-  "falsePositiveCheck": "Note any flags that might be false positives",
-  "recommendation": "safe" | "caution" | "avoid"
+  "analystConfidence": "High" | "Medium" | "Low",
+  "confidenceReason": "Explain which data points were available vs missing",
+
+  "domainIntelligence": {
+    "analysis": "2-4 sentences. Interpret the domain age (use the EXACT age from scan data: ${domainAge !== null ? `${domainAge} days / ${domainYears} years` : 'Unknown'}). Explain what this means for trust. Scammers rarely maintain domains for years. A 26-year domain is extremely trustworthy. A 5-day domain needs more scrutiny."
+  },
+
+  "sslAnalysis": {
+    "whatThisMeans": "${scanResult.sslData?.valid ? 'The SSL certificate is valid. This means encrypted connections and verified identity.' : 'The SSL certificate is INVALID. Explain possible causes: expired certificate, misconfiguration, self-signed cert, server issues.'}",
+    "whyItMatters": ["${scanResult.sslData?.valid ? 'Data is encrypted in transit' : 'Browsers will show security warnings'}", "${scanResult.sslData?.valid ? 'Site identity is verified' : 'Data may not be encrypted'}", "${scanResult.sslData?.valid ? 'Standard security practice' : 'Man-in-the-middle attacks possible'}"],
+    "likelyExplanation": "Given the domain age and other factors, explain what the SSL status likely indicates. ${domainAge && domainAge > 1000 ? 'For mature domains, SSL issues are usually configuration problems, not malice.' : 'For new domains, SSL issues could indicate hasty setup or inexperience.'}"
+  },
+
+  "infrastructureAnalysis": {
+    "analysis": "1-2 sentences about hosting. Provider: ${scanResult.hostingData?.provider || 'Unknown'}. ${scanResult.hostingData?.isFreeHosting ? 'Uses free hosting - common for indie devs but also scammers.' : 'Uses paid hosting - slight positive signal.'} Note any patterns."
+  },
+
+  "webPresence": {
+    "analysis": "Assess what the content findings mean. Contact: ${scanResult.scraperData?.hasContactPage ? 'Found' : 'Missing'}. Privacy: ${scanResult.scraperData?.hasPrivacyPolicy ? 'Found' : 'Missing'}. Terms: ${scanResult.scraperData?.hasTermsOfService ? 'Found' : 'Missing'}.",
+    "possibleReasons": ["List possible reasons for missing pages if applicable: parked domain, JS-heavy SPA, minimal landing page, gated content, early development"]
+  },
+
+  "archiveAnalysis": {
+    "note": "${scanResult.archiveData?.found ? `Archive.org has ${scanResult.archiveData.snapshotCount} snapshots. This shows historical presence.` : 'No Archive.org history found. This could mean the site is new, uses aggressive caching, or blocks archiving.'}"
+  },
+
+  "threatAnalysis": {
+    "analysis": "${scanResult.threatData?.isMalicious ? 'CRITICAL: Site is flagged in threat databases as ' + (scanResult.threatData.threat || 'malicious') + '. This is a serious concern.' : 'No matches in threat databases (URLhaus, etc.). This is a positive signal - if this domain was distributing malware or phishing, it would likely be flagged.'}"
+  },
+
+  "redFlagDeepDives": [
+    ${scanResult.redFlags.length > 0
+      ? scanResult.redFlags.map(f => `{
+      "flagTitle": "${f.title}",
+      "deepDive": "Provide context for this flag. The scanner flagged: ${f.description}. ${domainAge && domainAge > 1000 ? 'Given the mature domain age, this is likely a configuration issue or neglect rather than malicious intent.' : 'For newer domains, this requires more scrutiny.'} Explain what this means for the user."
+    }`).join(',\n    ')
+      : `{
+      "flagTitle": "No Red Flags",
+      "deepDive": "The automated scanner found no red flags. This is a positive indicator, but does not guarantee safety."
+    }`}
+  ],
+
+  "riskBreakdown": {
+    "signals": [
+      ${domainAge && domainAge > 1825 ? '{"factor": "Domain Age (' + domainYears + ' years)", "points": -40, "note": "strong trust signal"},' : domainAge && domainAge > 365 ? '{"factor": "Domain Age (' + domainYears + ' years)", "points": -20, "note": "established presence"},' : domainAge && domainAge < 30 ? '{"factor": "New Domain (' + domainAge + ' days)", "points": 15, "note": "needs more scrutiny"},' : ''}
+      ${!scanResult.threatData?.isMalicious ? '{"factor": "Clean Threat Databases", "points": -10, "note": "not flagged for malware/phishing"},' : '{"factor": "Flagged in Threat DB", "points": 50, "note": "critical security concern"},'}
+      ${scanResult.sslData?.valid ? '{"factor": "Valid SSL Certificate", "points": -5, "note": "encrypted connection"}' : '{"factor": "Invalid SSL Certificate", "points": 30, "note": "security issue"}'}
+      ${!scanResult.hostingData?.isFreeHosting ? ',{"factor": "Paid Hosting", "points": -5, "note": "slight positive"}' : ''}
+      ${scanResult.redFlags.filter(f => f.severity === 'critical').length > 0 ? ',{"factor": "Critical Red Flags", "points": 30, "note": "serious concerns found"}' : ''}
+    ],
+    "rawTotal": 0,
+    "adjustedScore": ${scanResult.riskScore},
+    "adjustedLevel": "${scanResult.riskLevel === 'low' ? 'Low' : scanResult.riskLevel === 'medium' ? 'Medium' : scanResult.riskLevel === 'high' ? 'High' : 'Critical'}"
+  },
+
+  "verdict": {
+    "assessment": "${scanResult.redFlags.some(f => f.severity === 'critical') ? 'CAUTION' : scanResult.threatData?.isMalicious ? 'AVOID' : domainAge && domainAge > 1825 && !scanResult.threatData?.isMalicious ? 'CAUTION' : 'CAUTION'}",
+    "whatWeKnow": [
+      "Domain is ${domainAge !== null ? (domainYears && domainYears > 0 ? domainYears + ' years old' : domainAge + ' days old') : 'of unknown age'}",
+      "${scanResult.threatData?.isMalicious ? 'Site IS flagged in threat databases' : 'Site is NOT in threat databases'}",
+      "${scanResult.sslData?.valid ? 'SSL certificate is valid' : 'SSL certificate has issues'}"
+    ],
+    "whatWeDontKnow": [
+      "List unknowns based on scan data",
+      "Why certain things might be missing",
+      "Whether the site is actively maintained"
+    ],
+    "recommendations": [
+      ${!scanResult.sslData?.valid ? '{"action": "Do not enter passwords or sensitive data", "priority": "High", "reason": "SSL certificate is invalid - data could be intercepted by third parties"},' : ''}
+      ${scanResult.threatData?.isMalicious ? '{"action": "Do not visit this site", "priority": "High", "reason": "Site is flagged in threat databases as ' + (scanResult.threatData.threat || 'malicious') + '"},' : ''}
+      {"action": "Verify the site works in your browser", "priority": "Medium", "reason": "DNS resolution or connection issues may indicate the site is down or blocking automated scanners"},
+      {"action": "Check for recent user reviews", "priority": "Low", "reason": "Community feedback could reveal issues our automated scan missed"}
+    ],
+    "bottomLine": "Provide 4-6 sentences with detailed analysis summarizing the key findings and actionable guidance. Reference the domain age, SSL status, and main concerns or positives. Explain WHY the user should trust or distrust this site."
+  },
+
+  "scoreAdjustment": 0
 }
 
-Be fair to new indie projects. New ≠ scam. Evaluate holistically.`;
+================================================================================
+                              CRITICAL RULES
+================================================================================
+
+1. Use ONLY values from the SCAN DATA section above
+2. If SSL shows "NO - INVALID/FAILED", acknowledge it is INVALID - do not claim it is valid
+3. Reference the EXACT domain age: ${domainAge !== null ? `${domainAge} days (${domainYears} years)` : 'Unknown'}
+4. Each red flag MUST have a contextual deep dive
+5. Calculate risk breakdown with actual point values
+6. The verdict.assessment must reflect any critical flags - cannot be TRUSTWORTHY if critical flags exist
+7. Fill in ALL sections - do not leave placeholders
+
+Respond with valid JSON only.`;
 }

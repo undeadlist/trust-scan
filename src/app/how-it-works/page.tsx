@@ -25,7 +25,7 @@ export default function HowItWorksPage() {
     { check: 'Pattern Matching', description: 'Suspicious claims and red flag detection' },
   ];
 
-  const scoringData = Object.entries(RISK_CONFIG).map(([level, config]) => ({
+  const scoringData = Object.entries(RISK_CONFIG).map(([, config]) => ({
     score: config.range,
     level: (
       <span className={config.textClass}>{config.label}</span>

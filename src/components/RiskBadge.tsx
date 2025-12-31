@@ -10,10 +10,10 @@ interface RiskBadgeProps {
 
 const levelConfig = {
   low: {
-    bg: 'bg-emerald-500/20',
-    border: 'border-emerald-500/50',
-    text: 'text-emerald-400',
-    glow: 'shadow-emerald-500/20',
+    bg: 'bg-zinc-700/50',
+    border: 'border-zinc-600',
+    text: 'text-zinc-300',
+    glow: 'shadow-zinc-500/10',
     label: 'LOW RISK',
     icon: '✓',
   },
