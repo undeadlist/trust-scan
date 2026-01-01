@@ -16,6 +16,7 @@ services:
       - "3002:3000"
     networks:
       - trustscan-network
+      - supabase_default
     extra_hosts:
       # Allow container to reach host network (for Ollama)
       - "host.docker.internal:host-gateway"
@@ -36,3 +37,5 @@ services:
 networks:
   trustscan-network:
     driver: bridge
+  supabase_default:
+    external: true

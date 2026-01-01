@@ -69,6 +69,7 @@ export async function analyzeWithOllama(scanResult: ScanResult): Promise<AIAnaly
         model: config.model,
         prompt: prompt + '\n\nRespond with valid JSON only. No markdown, no explanation, just the JSON object.',
         stream: false,
+        app: 'trust-scan',
         options: {
           temperature: 0.4,
           num_predict: 2048,

@@ -171,7 +171,7 @@ Domain: ${scanResult.domain}
 Domain Age: ${domainAgeDays !== null ? `${domainAgeDays} days` : 'Unknown'}
 Risk Score: ${scanResult.riskScore}/100 (${scanResult.riskLevel})
 Scan Confidence: ${scanResult.scanConfidence}
-${scanResult.scanNotes.length > 0 ? `Scan Notes: ${scanResult.scanNotes.join(', ')}` : ''}
+${(scanResult.scanNotes?.length ?? 0) > 0 ? `Scan Notes: ${scanResult.scanNotes.join(', ')}` : ''}
 
 ### WHOIS:
 ${scanResult.whoisData ? JSON.stringify({
