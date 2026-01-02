@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { Scanner, Report, PageLayout } from '@/components';
 import { ScanResult } from '@/lib/types';
-import { BRAND, CHECKS_INFO } from '@/lib/design-system';
+import { BRAND } from '@/lib/design-system';
 
 export default function Home() {
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);

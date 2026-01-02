@@ -147,14 +147,88 @@ export interface ScanResult {
 }
 
 export interface AIAnalysis {
-  summary: string;
-  concerns: string[];
-  positives: string[];
-  reasoning: string;
+  // === NEW COMPREHENSIVE REPORT STRUCTURE ===
+
+  // Header
+  analystConfidence?: 'High' | 'Medium' | 'Low';
+  confidenceReason?: string;
+
+  // Section 1: Domain Intelligence
+  domainIntelligence?: {
+    analysis: string;
+  };
+
+  // Section 2: SSL/TLS Security
+  sslAnalysis?: {
+    whatThisMeans: string;
+    whyItMatters: string[];
+    likelyExplanation: string;
+  };
+
+  // Section 3: Infrastructure
+  infrastructureAnalysis?: {
+    analysis: string;
+  };
+
+  // Section 4: Web Presence
+  webPresence?: {
+    analysis: string;
+    possibleReasons: string[];
+  };
+
+  // Section 5: Historical Presence
+  archiveAnalysis?: {
+    note: string;
+  };
+
+  // Section 6: Threat Intelligence
+  threatAnalysis?: {
+    analysis: string;
+  };
+
+  // Section 7: Red Flags
+  redFlagDeepDives?: {
+    flagTitle: string;
+    deepDive: string;
+  }[];
+
+  // Section 8: Risk Calculation
+  riskBreakdown?: {
+    signals: {
+      factor: string;
+      points: number;
+      note: string;
+    }[];
+    rawTotal: number;
+    adjustedScore: number;
+    adjustedLevel: string;
+  };
+
+  // Section 9: Verdict
+  verdict?: {
+    assessment: 'TRUSTWORTHY' | 'CAUTION' | 'SUSPICIOUS' | 'AVOID';
+    whatWeKnow: string[];
+    whatWeDontKnow: string[];
+    recommendations: {
+      action: string;
+      priority: 'High' | 'Medium' | 'Low';
+      reason?: string; // Why this recommendation matters
+    }[];
+    bottomLine: string;
+  };
+
+  // Score adjustment
+  scoreAdjustment?: number;
+
+  // === BACKWARD COMPAT (old flat structure) ===
+  summary?: string;
+  concerns?: string[];
+  positives?: string[];
+  reasoning?: string;
   riskLevel?: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-  verdict?: 'TRUSTWORTHY' | 'CAUTION' | 'SUSPICIOUS' | 'AVOID';
   falsePositiveCheck?: string;
   recommendation?: 'safe' | 'caution' | 'avoid';
+  adjustmentReason?: string;
 }
 
 // Backward compatibility alias
@@ -170,3 +244,18 @@ export interface ScanResponse {
   cached?: boolean;
   error?: string;
 }
+
+// Risk Calculation visualization data
+export interface RiskCalculationData {
+  baseScore: number;
+  adjustments: {
+    label: string;
+    value: number;
+    type: 'positive' | 'negative';
+    note?: string;
+  }[];
+  finalScore: number;
+}
+
+// Verdict status types for UI components
+export type VerdictStatus = 'TRUSTWORTHY' | 'CAUTION' | 'SUSPICIOUS' | 'AVOID';

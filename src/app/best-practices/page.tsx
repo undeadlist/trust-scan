@@ -160,11 +160,11 @@ export default function BestPracticesPage() {
               <div>
                 <h4 className="font-medium text-zinc-200 mb-3">Common Honeypot Patterns</h4>
                 <div className="space-y-2">
-                  <HoneypotPattern text="&quot;Free tier&quot; tools that require your database URL" />
+                  <HoneypotPattern text={'"Free tier" tools that require your database URL'} />
                   <HoneypotPattern text="AI wrappers asking for your OpenAI/Anthropic keys" />
-                  <HoneypotPattern text="&quot;One-click deploy&quot; services wanting AWS credentials" />
+                  <HoneypotPattern text={'"One-click deploy" services wanting AWS credentials'} />
                   <HoneypotPattern text="GitHub apps requesting write access to all repos" />
-                  <HoneypotPattern text="&quot;Free hosting&quot; requiring your Stripe API key" />
+                  <HoneypotPattern text={'"Free hosting" requiring your Stripe API key'} />
                   <HoneypotPattern text="Chrome extensions asking for broad permissions" />
                 </div>
               </div>
@@ -275,7 +275,7 @@ function HoneypotPattern({ text }: { text: string }) {
       <svg className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
       </svg>
-      <span className="text-zinc-300 text-sm" dangerouslySetInnerHTML={{ __html: text }} />
+      <span className="text-zinc-300 text-sm">{text}</span>
     </div>
   );
 }
