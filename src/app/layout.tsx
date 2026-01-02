@@ -25,7 +25,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://trustscan.aibuilds.com'),
+  metadataBase: new URL('https://trustscanpro.com'),
   title: {
     default: `${BRAND.name} - Free URL Scanner for AI Builders | UndeadList`,
     template: `%s | ${BRAND.name}`,
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   keywords: [
     // Primary keywords (target ranking)
     "trust scan",
-    "aibuilds",
+    "trustscanpro",
     "trustscan",
     "ai builds",
     // Feature keywords
@@ -78,7 +78,7 @@ export const metadata: Metadata = {
     description: `Check if websites are legit before connecting your API keys. Free scam detection and domain verification by UndeadList.`,
     type: "website",
     siteName: `${BRAND.name} by UndeadList`,
-    url: 'https://trustscan.aibuilds.com',
+    url: 'https://trustscanpro.com',
     locale: 'en_US',
     images: [
       {
@@ -111,7 +111,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: 'https://trustscan.aibuilds.com',
+    canonical: 'https://trustscanpro.com',
   },
   verification: {
     // Add your Google Search Console verification code here
@@ -130,31 +130,31 @@ const jsonLd = {
   '@graph': [
     {
       '@type': 'WebSite',
-      '@id': 'https://trustscan.aibuilds.com/#website',
-      url: 'https://trustscan.aibuilds.com',
+      '@id': 'https://trustscanpro.com/#website',
+      url: 'https://trustscanpro.com',
       name: 'Trust Scan',
       description: 'Free URL scanner for AI builders. Check if websites are legit before connecting your API keys.',
       publisher: {
-        '@id': 'https://trustscan.aibuilds.com/#organization',
+        '@id': 'https://trustscanpro.com/#organization',
       },
       potentialAction: {
         '@type': 'SearchAction',
         target: {
           '@type': 'EntryPoint',
-          urlTemplate: 'https://trustscan.aibuilds.com/?url={search_term_string}',
+          urlTemplate: 'https://trustscanpro.com/?url={search_term_string}',
         },
         'query-input': 'required name=search_term_string',
       },
     },
     {
       '@type': 'Organization',
-      '@id': 'https://trustscan.aibuilds.com/#organization',
+      '@id': 'https://trustscanpro.com/#organization',
       name: 'UndeadList',
       alternateName: 'Trust Scan',
       url: 'https://undeadlist.com',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://trustscan.aibuilds.com/logo.png',
+        url: 'https://trustscanpro.com/logo.png',
         width: 512,
         height: 512,
       },
@@ -166,10 +166,10 @@ const jsonLd = {
     },
     {
       '@type': 'WebApplication',
-      '@id': 'https://trustscan.aibuilds.com/#application',
+      '@id': 'https://trustscanpro.com/#application',
       name: 'Trust Scan',
       description: 'Free URL trust scanner for developers. Detect scams, verify domains, and check website legitimacy with AI-powered analysis.',
-      url: 'https://trustscan.aibuilds.com',
+      url: 'https://trustscanpro.com',
       applicationCategory: 'SecurityApplication',
       operatingSystem: 'Any',
       offers: {
@@ -178,7 +178,7 @@ const jsonLd = {
         priceCurrency: 'USD',
       },
       creator: {
-        '@id': 'https://trustscan.aibuilds.com/#organization',
+        '@id': 'https://trustscanpro.com/#organization',
       },
       featureList: [
         'URL scanning',
@@ -192,13 +192,13 @@ const jsonLd = {
     },
     {
       '@type': 'BreadcrumbList',
-      '@id': 'https://trustscan.aibuilds.com/#breadcrumb',
+      '@id': 'https://trustscanpro.com/#breadcrumb',
       itemListElement: [
         {
           '@type': 'ListItem',
           position: 1,
           name: 'Home',
-          item: 'https://trustscan.aibuilds.com',
+          item: 'https://trustscanpro.com',
         },
       ],
     },

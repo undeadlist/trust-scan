@@ -12,8 +12,9 @@ services:
       - .env
     environment:
       NODE_ENV: production
+      PORT: "3002"
     ports:
-      - "3002:3000"
+      - "3002:3002"
     networks:
       - trustscan-network
       - supabase_default

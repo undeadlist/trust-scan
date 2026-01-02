@@ -2,7 +2,7 @@
 
 [![Built by UndeadList](https://img.shields.io/badge/Built%20by-UndeadList-red?style=flat-square)](https://undeadlist.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
-[![Live Demo](https://img.shields.io/badge/Live-aibuilds.net-green?style=flat-square)](https://aibuilds.net)
+[![Live Demo](https://img.shields.io/badge/Live-trustscanpro.com-green?style=flat-square)](https://trustscanpro.com)
 
 **Is this app legit? Check before you connect.**
 
@@ -297,6 +297,6 @@ MIT - See [LICENSE](LICENSE) for details.
 
 Built by [UndeadList](https://undeadlist.com) - the indie dev flea market.
 
-**Live at:** [aibuilds.net](https://aibuilds.net)
+**Live at:** [trustscanpro.com](https://trustscanpro.com)
 
 *Results are informational only. Always do your own research before connecting to any service.*

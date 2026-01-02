@@ -1,5 +1,5 @@
 # Trust Scan by UndeadList
-# https://trustscan.aibuilds.com
+# https://trustscanpro.com
 
 # Allow all crawlers full access
 User-agent: *
@@ -12,4 +12,4 @@ Disallow: /api/
 Disallow: /_next/
 
 # Sitemap location (required for Google Search Console)
-Sitemap: https://trustscan.aibuilds.com/sitemap.xml
+Sitemap: https://trustscanpro.com/sitemap.xml
