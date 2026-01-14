@@ -10,10 +10,10 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@octokit/rest": "^21.0.2",
-    "@prisma/client": "^6.19.1",
-    "@upstash/ratelimit": "^2.0.7",
-    "@upstash/redis": "^1.36.0",
+    "@octokit/rest": "^22.0.1",
+    "@prisma/client": "^7.2.0",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.36.1",
     "cheerio": "^1.0.0",
     "next": "16.1.1",
     "react": "19.2.3",
